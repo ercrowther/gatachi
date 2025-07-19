@@ -1,0 +1,20 @@
+{
+  "name": "gatachi",
+  "version": "1.0.0",
+  "description": "The discord bot for the Destroyer Warriors discord server",
+  "homepage": "https://github.com/ercrowther/gatachi#readme",
+  "bugs": {
+    "url": "https://github.com/ercrowther/gatachi/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ercrowther/gatachi.git"
+  },
+  "license": "ISC",
+  "author": "ArtificialF",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
