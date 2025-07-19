@@ -32,7 +32,6 @@ module.exports = [
 			'no-undef': 'off',
 			'object-curly-spacing': ['error', 'always'],
 			'prefer-const': 'error',
-			quotes: ['error', 'single'],
 			semi: ['error', 'always'],
 			'space-before-blocks': 'error',
 			'space-before-function-paren': ['error', {
@@ -44,6 +43,7 @@ module.exports = [
 			'space-infix-ops': 'error',
 			'space-unary-ops': 'error',
 			'spaced-comment': 'error',
+			"indent": ["error", 4],
 			yoda: 'error',
 		},
 	},
