@@ -9,7 +9,7 @@ module.exports = {
     async execute(interaction) {
         // Reply with the user's name and when they joined discord
         await interaction.reply(
-            `This command was run by ${interaction.user.username}, who joined on ${interaction.member.joinedAt}.`,
+            `This command was run by ${interaction.user.username}, who joined on ${interaction.member.joinedAt}.`
         );
     },
 };
