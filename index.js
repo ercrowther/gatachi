@@ -9,6 +9,8 @@ const path = require("node:path");
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 // Attach a command property to the client
 client.commands = new Collection();
+// Create a collection of cooldowns as a client property
+client.cooldowns = new Collection();
 
 // Get the path to the commands folder and the contents of it
 const foldersPath = path.join(__dirname, "commands");
