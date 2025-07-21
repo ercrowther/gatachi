@@ -1,12 +1,6 @@
 require("dotenv").config();
 // Require the necessary discord.js classes
-const {
-    Client,
-    Collection,
-    Events,
-    GatewayIntentBits,
-    MessageFlags,
-} = require("discord.js");
+const { Client, Collection, GatewayIntentBits } = require("discord.js");
 // Require necessary modules for file paths
 const fs = require("node:fs");
 const path = require("node:path");
@@ -44,49 +38,26 @@ for (const folder of commandFolders) {
     }
 }
 
-// For every interaction that is a slash command only
-client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
+// Get the events folder and all javascript files inside it
+const eventsPath = path.join(__dirname, "events");
+const eventFiles = fs
+    .readdirSync(eventsPath)
+    .filter((file) => file.endsWith(".js"));
 
-    // Try and get the command from the client commands collection by it's interaction name
-    const command = interaction.client.commands.get(interaction.commandName);
+for (const file of eventFiles) {
+    // Require each event
+    const filePath = path.join(eventsPath, file);
+    const event = require(filePath);
 
-    // If the command is not within the command property
-    if (!command) {
-        console.error(
-            `❌ ERROR: No command matching ${interaction.commandName} was found.`
-        );
-        return;
+    // Execute each event
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args));
+    } else {
+        client.on(event.name, (...args) => event.execute(...args));
     }
-
-    // Call the command's execute function and pass it the interaction
-    try {
-        await command.execute(interaction);
-    } catch (error) {
-        console.error(`❌ ERROR: ${error}`);
-
-        if (interaction.replied || interaction.deferred) {
-            await interaction.followUp({
-                content:
-                    "❌ ERROR: There was an unknown error while executing this command!",
-                flags: MessageFlags.Ephemeral,
-            });
-        } else {
-            await interaction.reply({
-                content:
-                    "❌ ERROR: There was an unknown error while executing this command!",
-                flags: MessageFlags.Ephemeral,
-            });
-        }
-    }
-});
+}
 
 console.log("▶️ Starting up...");
-
-// This code is ran once the client is ready
-client.once(Events.ClientReady, (readyClient) => {
-    console.log(`✅ Client is ready! Logged in as ${readyClient.user.tag}`);
-});
 
 // Log in to discord using token
 client.login(process.env.DISCORD_TOKEN);
