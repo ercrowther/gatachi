@@ -46,7 +46,7 @@ module.exports = {
                         name:
                             "Players [" +
                             data.players.online.toString() +
-                            "\\" +
+                            " / " +
                             data.players.max.toString() +
                             "]",
                         value: playerList || "No players online",
