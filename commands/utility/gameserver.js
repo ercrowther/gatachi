@@ -1,7 +1,8 @@
+require("dotenv").config();
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 
 // Variables
-const serverip = "99.254.52.130:25565";
+const serverip = process.env.GAME_SERVER_IP;
 
 module.exports = {
     cooldown: 10,
