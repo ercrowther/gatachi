@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,7 +15,8 @@ module.exports = {
             option
                 .setName("game server role id")
                 .setDescription("The role id of the GAME SERVER ACCESS role")
-        ),
+        )
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
         // . . .
     },
