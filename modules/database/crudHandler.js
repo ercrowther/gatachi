@@ -52,7 +52,29 @@ async function fetchServerConfigByGuildID(guildId) {
     }
 }
 
+/**
+ * Create a new ServerConfig for a guild
+ *
+ * @param {string} guildId - The ID for the guild the ServerConfig is for
+ * @returns {Promise<Object|null} The ServerConfig instance created. May be null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function createServerConfig(guildId) {
+    try {
+        // Create the config
+        const config = await ServerConfigModel.create({
+            guild_id: guildId,
+        });
+
+        return config;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to create a ServerConfig: " + error.message);
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfigByGuildID,
+    createServerConfig,
 };
