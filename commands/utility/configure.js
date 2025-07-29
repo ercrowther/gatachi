@@ -39,15 +39,19 @@ module.exports = {
             if (configInstance == null) {
                 // If one does not exist yet, create one before continuing.
                 await crudHandler.createServerConfig(guildId);
+                console.error(
+                    `➕ Added new ServerConfig for guild ID ${guildId}`
+                );
             }
 
             // If the alarm role id was supplied, update the alarm role id for the guild
             if (alarmRoleId != null) {
                 await crudHandler.updateAlarmRoleID(guildId, alarmRoleId);
+                console.error(`❌ ERROR: ${error}`);
             }
         } catch (error) {
             // If fails, log error to console and return a meaningful reply
-            console.log(error);
+            console.error(`❌ ERROR: ${error}`);
 
             const replyEmbed = new EmbedBuilder()
                 .setColor("#fc0303")
