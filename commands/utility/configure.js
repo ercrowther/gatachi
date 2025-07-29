@@ -23,21 +23,16 @@ module.exports = {
 
         // Get values from options
         const alarmRoleId =
-            interaction.options.getString("gat alarm role id") ?? null;
+            interaction.options.getString("gat_alarm_role_id") ?? null;
         const gameServerRoleId =
-            interaction.options.getString("game server role id") ?? null;
-
-        console.log(alarmRoleId);
-        console.log(gameServerRoleId);
+            interaction.options.getString("game_server_role_id") ?? null;
 
         try {
             // Get the updated rows for the alarm role id
-            const updatedRows = await crudHandler.updateAlarmRoleID(
+            const alarmRowsUpdated = await crudHandler.updateAlarmRoleID(
                 guildId,
                 alarmRoleId
             );
-
-            console.log(updatedRows);
         } catch (error) {
             console.log(error);
         }
