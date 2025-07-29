@@ -5,7 +5,7 @@ const ServerConfigModel = require("../database/models/serverConfig");
  *
  * @param {string} guildId - the ID of the guild
  * @param {string} alarmId  - the id for the alarm role
- * @returns {Promise<[number, Object[]]>} The result of the update operation.
+ * @returns {Promise<number>} The result of the update operation.
  * @throws {Error} Throws an error if the update fails
  */
 async function updateAlarmRoleID(guildId, alarmId) {
