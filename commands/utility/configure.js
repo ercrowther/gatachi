@@ -23,13 +23,47 @@ module.exports = {
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
+        const guild = interaction.guild;
         const guildId = interaction.guildId;
+        // Becomes true if one of the roles that were specified does not actually exist.
+        let invalidRoleFlag = false;
 
         // Get values from options
-        const alarmRoleId =
-            interaction.options.getString("gat_alarm_role_id");
-        const gameServerRoleId =
-            interaction.options.getString("game_server_role_id");
+        const alarmRoleId = interaction.options.getString("gat_alarm_role_id");
+        const gameServerRoleId = interaction.options.getString(
+            "game_server_role_id"
+        );
+
+        // Check that the alarm role can be found and exists
+        if (alarmRoleId) {
+            const alarmRole = guild.roles.cache.get(alarmRoleId);
+
+            if (!alarmRole) {
+                invalidRoleFlag = true;
+            }
+        }
+
+        // Check that the game server role can be found and exists
+        if (gameServerRoleId) {
+            const gameRole = guild.roles.cache.get(gameServerRoleId);
+
+            if (!gameRole) {
+                invalidRoleFlag = true;
+            }
+        }
+
+        // Finally, if there were any invalid roles found, send a meaningful reply and return early
+        if (invalidRoleFlag) {
+            const replyEmbed = new EmbedBuilder()
+                .setColor("#fc0303")
+                .setDescription("Invalid RoleID(s) supplied.");
+            await interaction.reply({
+                embeds: [replyEmbed],
+                ephemeral: true,
+            });
+
+            return;
+        }
 
         try {
             // Query to see if an instance of ServerConfig exists for the current guild
@@ -53,7 +87,7 @@ module.exports = {
             console.error(`❌ ERROR: ${error}`);
             const replyEmbed = new EmbedBuilder()
                 .setColor("#fc0303")
-                .setTitle("This command has failed unexpectedly.");
+                .setDescription("This command has failed unexpectedly.");
             await interaction.reply({
                 embeds: [replyEmbed],
                 ephemeral: true,
