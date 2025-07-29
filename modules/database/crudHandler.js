@@ -127,10 +127,36 @@ async function fetchAlarmRoleIdByGuildID(guildId) {
     }
 }
 
+/**
+ * Fetch the game server role id for a guild
+ *
+ * @param {string} guildId - The ID for the guild
+ * @returns {Promise<Object|null} The role id, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchGameServerRoleIdByGuildID(guildId) {
+    try {
+        // Fetch the game server role's id
+        const config = await ServerConfigModel.findOne({
+            where: {
+                guild_id: guildId,
+            },
+        });
+
+        return config.gameserver_role_id;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error(
+            "Failed to fetch game server role ID: " + error.message
+        );
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfigByGuildID,
     createServerConfig,
     updateGameServerRoleID,
     fetchAlarmRoleIdByGuildID,
+    fetchGameServerRoleIdByGuildID,
 };
