@@ -88,7 +88,7 @@ async function fetchServerConfigByGuildID(guildId) {
  *
  * @param {string} guildId - The ID for the guild the ServerConfig is for
  * @returns {Promise<Object|null} The ServerConfig instance created. May be null
- * @throws {Error} Throws an error if the fetch fails
+ * @throws {Error} Throws an error if the creation fails
  */
 async function createServerConfig(guildId) {
     try {
@@ -104,9 +104,33 @@ async function createServerConfig(guildId) {
     }
 }
 
+/**
+ * Fetch the alarm role id for a guild
+ *
+ * @param {string} guildId - The ID for the guild
+ * @returns {Promise<Object|null} The role id, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchAlarmRoleIdByGuildID(guildId) {
+    try {
+        // Fetch the alarm role's id
+        const config = await ServerConfigModel.findOne({
+            where: {
+                guild_id: guildId,
+            },
+        });
+
+        return config.alarm_role_id;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to fetch alarm role ID: " + error.message);
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfigByGuildID,
     createServerConfig,
     updateGameServerRoleID,
+    fetchAlarmRoleIdByGuildID,
 };
