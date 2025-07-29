@@ -1,4 +1,8 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
+const {
+    SlashCommandBuilder,
+    PermissionFlagsBits,
+    EmbedBuilder,
+} = require("discord.js");
 const crudHandler = require("../../modules/database/crudHandler");
 
 module.exports = {
@@ -33,16 +37,25 @@ module.exports = {
                 guildId
             );
             if (configInstance == null) {
-                // . . .
+                // If one does not exist yet, create one before continuing.
+                await crudHandler.createServerConfig(guildId);
             }
 
-            // Get the updated rows for the alarm role id
-            const alarmRowsUpdated = await crudHandler.updateAlarmRoleID(
-                guildId,
-                alarmRoleId
-            );
+            // If the alarm role id was supplied, update the alarm role id for the guild
+            if (alarmRoleId != null) {
+                await crudHandler.updateAlarmRoleID(guildId, alarmRoleId);
+            }
         } catch (error) {
+            // If fails, log error to console and return a meaningful reply
             console.log(error);
+
+            const replyEmbed = new EmbedBuilder()
+                .setColor("#fc0303")
+                .setTitle("This command has failed unexpectedly.");
+            await interaction.reply({
+                embeds: [replyEmbed],
+                ephemeral: ephemeral,
+            });
         }
 
         await interaction.reply("Completed");
