@@ -30,6 +30,37 @@ async function updateAlarmRoleID(guildId, alarmId) {
 }
 
 /**
+ * Updates the game server role id in the ServerConfig table for the guild specified in arguments
+ *
+ * @param {string} guildId - the ID of the guild
+ * @param {string} gameId  - the id for the game server role
+ * @returns {Promise<number>} The result of the update operation.
+ * @throws {Error} Throws an error if the update fails
+ */
+async function updateGameServerRoleID(guildId, gameId) {
+    try {
+        // Update the game server role for the guild
+        const config = await ServerConfigModel.update(
+            {
+                gameserver_role_id: gameId,
+            },
+            {
+                where: {
+                    guild_id: guildId,
+                },
+            }
+        );
+
+        return config;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error(
+            "Failed to update game server role ID: " + error.message
+        );
+    }
+}
+
+/**
  * Fetch a ServerConfig instance using a specified guildId
  *
  * @param {string} guildId - The ID of the guild
@@ -77,4 +108,5 @@ module.exports = {
     updateAlarmRoleID,
     fetchServerConfigByGuildID,
     createServerConfig,
+    updateGameServerRoleID,
 };

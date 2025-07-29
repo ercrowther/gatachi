@@ -70,7 +70,7 @@ module.exports = {
             const configInstance = await crudHandler.fetchServerConfigByGuildID(
                 guildId
             );
-            if (configInstance == null) {
+            if (!configInstance) {
                 // If one does not exist yet, create one before continuing.
                 await crudHandler.createServerConfig(guildId);
                 console.error(
@@ -79,8 +79,16 @@ module.exports = {
             }
 
             // If the alarm role id was supplied, update the alarm role id for the guild
-            if (alarmRoleId != null) {
+            if (alarmRoleId) {
                 await crudHandler.updateAlarmRoleID(guildId, alarmRoleId);
+            }
+
+            // If the game server role id was supplied, update the game server role id for the guild
+            if (gameServerRoleId) {
+                await crudHandler.updateGameServerRoleID(
+                    guildId,
+                    gameServerRoleId
+                );
             }
         } catch (error) {
             // If fails, log error to console and return a meaningful reply
