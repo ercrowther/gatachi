@@ -8,7 +8,8 @@ const sequelize = require("../db");
 const ServerConfig = sequelize.define("serverconfig", {
     guild_id: {
         type: Sequelize.STRING,
-        defaultValue: null,
+        allowNull: false,
+        primaryKey: true,
     },
     alarm_role_id: {
         type: Sequelize.STRING,
