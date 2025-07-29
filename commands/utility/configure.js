@@ -110,11 +110,6 @@ module.exports = {
                 "RoleID(s) successfully updated for the server's config."
             );
         await interaction.reply({
-            embeds: [replyEmbed],
-            ephemeral: true,
-        });
-
-        await interaction.reply({
             embeds: [successEmbed],
             ephemeral: true,
         });
