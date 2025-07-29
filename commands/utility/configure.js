@@ -9,12 +9,12 @@ module.exports = {
         )
         .addStringOption((option) =>
             option
-                .setName("gat alarm role id")
+                .setName("gat_alarm_role_id")
                 .setDescription("The role id of the GAT ALARM role")
         )
         .addStringOption((option) =>
             option
-                .setName("game server role id")
+                .setName("game_server_role_id")
                 .setDescription("The role id of the GAME SERVER ACCESS role")
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
@@ -30,9 +30,16 @@ module.exports = {
         console.log(alarmRoleId);
         console.log(gameServerRoleId);
 
-        // Get the updated rows for the alarm role id
-        const updatedRows = crudHandler.updateAlarmRoleID(guildId, alarmRoleId);
-        console.log(updatedRows);
+        try {
+            // Get the updated rows for the alarm role id
+            const updatedRows = crudHandler.updateAlarmRoleID(
+                guildId,
+                alarmRoleId
+            );
+            console.log(updatedRows);
+        } catch (error) {
+            console.log(error);
+        }
 
         await interaction.reply("Completed");
     },
