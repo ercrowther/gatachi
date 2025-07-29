@@ -1,5 +1,7 @@
 require("dotenv").config();
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const crudHandler = require("../../modules/database/crudHandler");
+const roleValidator = require("../../modules/roleValidator");
 
 // Variables
 const serverip = process.env.GAME_SERVER_IP;
@@ -17,6 +19,69 @@ module.exports = {
                 )
         ),
     async execute(interaction) {
+        const guild = interaction.guild;
+        const guildId = interaction.guildId;
+
+        try {
+            // Get the server's config from the database
+            const config = await crudHandler.fetchServerConfigByGuildID(
+                guildId
+            );
+
+            // Ensure a server config exists for the guild
+            if (!config) {
+                const replyEmbed = new EmbedBuilder()
+                    .setColor("#fc0303")
+                    .setDescription(
+                        "The /configure command has not been ran for this server yet!"
+                    );
+                await interaction.reply({
+                    embeds: [replyEmbed],
+                    ephemeral: true,
+                });
+
+                return;
+            }
+
+            // Fetch the game server access role id from the database
+            const gameRoleId = await crudHandler.fetchGameServerRoleIdByGuildID(
+                guildId
+            );
+            // Validate that the member has the game server access role
+            const { invalidIds } = roleValidator.validateRolesForMember(
+                interaction.member,
+                [gameRoleId]
+            );
+            // If the member does not have it, send a meaningful reply and return early
+            if (invalidIds.length > 0) {
+                const gameRole = guild.roles.cache.get(gameRoleId);
+
+                const failEmbed = new EmbedBuilder()
+                    .setColor("#fc0303")
+                    .setDescription(
+                        `You need the ${gameRole.name} role to run this command!`
+                    );
+                await interaction.reply({
+                    embeds: [failEmbed],
+                    ephemeral: true,
+                });
+
+                return;
+            }
+        } catch (error) {
+            // If fails, log error to console and return a meaningful reply
+            console.error(`❌ ERROR: ${error}`);
+            const replyEmbed = new EmbedBuilder()
+                .setColor("#fc0303")
+                .setDescription("This command has failed unexpectedly.");
+            await interaction.reply({
+                embeds: [replyEmbed],
+                ephemeral: true,
+            });
+
+            return;
+        }
+
         const ephemeral = interaction.options.getBoolean("secret") ?? false;
         // Query mcstatus's api with the server ip and recieve its json reply
         const response = await fetch(
