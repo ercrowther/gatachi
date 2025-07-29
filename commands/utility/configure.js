@@ -27,9 +27,9 @@ module.exports = {
 
         // Get values from options
         const alarmRoleId =
-            interaction.options.getString("gat_alarm_role_id") ?? null;
+            interaction.options.getString("gat_alarm_role_id");
         const gameServerRoleId =
-            interaction.options.getString("game_server_role_id") ?? null;
+            interaction.options.getString("game_server_role_id");
 
         try {
             // Query to see if an instance of ServerConfig exists for the current guild
@@ -51,14 +51,15 @@ module.exports = {
         } catch (error) {
             // If fails, log error to console and return a meaningful reply
             console.error(`❌ ERROR: ${error}`);
-
             const replyEmbed = new EmbedBuilder()
                 .setColor("#fc0303")
                 .setTitle("This command has failed unexpectedly.");
             await interaction.reply({
                 embeds: [replyEmbed],
-                ephemeral: ephemeral,
+                ephemeral: true,
             });
+
+            return;
         }
 
         await interaction.reply("Completed");
