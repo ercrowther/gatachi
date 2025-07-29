@@ -28,6 +28,14 @@ module.exports = {
             interaction.options.getString("game_server_role_id") ?? null;
 
         try {
+            // Query to see if an instance of ServerConfig exists for the current guild
+            const configInstance = await crudHandler.fetchServerConfigByGuildID(
+                guildId
+            );
+            if (configInstance == null) {
+                // . . .
+            }
+
             // Get the updated rows for the alarm role id
             const alarmRowsUpdated = await crudHandler.updateAlarmRoleID(
                 guildId,
