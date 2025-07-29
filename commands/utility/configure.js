@@ -32,10 +32,11 @@ module.exports = {
 
         try {
             // Get the updated rows for the alarm role id
-            const updatedRows = crudHandler.updateAlarmRoleID(
+            const updatedRows = await crudHandler.updateAlarmRoleID(
                 guildId,
                 alarmRoleId
             );
+
             console.log(updatedRows);
         } catch (error) {
             console.log(error);
