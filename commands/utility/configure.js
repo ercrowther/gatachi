@@ -47,7 +47,6 @@ module.exports = {
             // If the alarm role id was supplied, update the alarm role id for the guild
             if (alarmRoleId != null) {
                 await crudHandler.updateAlarmRoleID(guildId, alarmRoleId);
-                console.error(`❌ ERROR: ${error}`);
             }
         } catch (error) {
             // If fails, log error to console and return a meaningful reply
