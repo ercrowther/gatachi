@@ -100,9 +100,7 @@ module.exports = {
         const replyEmbed = new EmbedBuilder()
             .setColor("#2596be")
             .setTitle(serverip)
-            .setThumbnail(
-                "https://cdn.discordapp.com/attachments/1156748910157647913/1396988726642741258/server-icon.png?ex=688016a3&is=687ec523&hm=6a8906bba6ed97428eacfa6041d377831ab46bda7e1cc01bb0cce075384d5ca1&"
-            );
+            .setThumbnail(process.env.GAME_ICON_URL);
         // If the server is online, we should fill it with meaningful data. Otherwise, we don't
         if (data.online) {
             replyEmbed
