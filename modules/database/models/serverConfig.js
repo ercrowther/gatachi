@@ -6,6 +6,7 @@ const sequelize = require("../db");
 // gameserver_role_id: The role ID for the GAME SERVER ACCESS role
 // alarm_sticky_state: The true or false state for if the gat alarm sticky message is active or not
 // alarm_latest_message_id: The message ID for the most recent alarm sticky message
+// alarm_message_channel_id: The channel ID the most recent alarm sticky message was sent in
 const ServerConfig = sequelize.define("serverconfig", {
     guild_id: {
         type: Sequelize.STRING,
@@ -26,6 +27,10 @@ const ServerConfig = sequelize.define("serverconfig", {
         allowNull: false,
     },
     alarm_latest_message_id: {
+        type: Sequelize.STRING,
+        defaultValue: null,
+    },
+    alarm_message_channel_id: {
         type: Sequelize.STRING,
         defaultValue: null,
     },
