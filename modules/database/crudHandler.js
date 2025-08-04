@@ -5,8 +5,8 @@ const ServerConfigModel = require("../database/models/serverConfig");
  *
  * @param {string} guildId - the ID of the guild
  * @param {string} alarmId  - the id for the alarm role
- * @returns {Promise<number>} The result of the update operation.
- * @throws {Error} Throws an error if the update fails
+ * @returns {Promise<number>} - The result of the update operation.
+ * @throws {Error} - Throws an error if the update fails
  */
 async function updateAlarmRoleID(guildId, alarmId) {
     try {
@@ -34,8 +34,8 @@ async function updateAlarmRoleID(guildId, alarmId) {
  *
  * @param {string} guildId - the ID of the guild
  * @param {string} gameId  - the id for the game server role
- * @returns {Promise<number>} The result of the update operation.
- * @throws {Error} Throws an error if the update fails
+ * @returns {Promise<number>} - The result of the update operation.
+ * @throws {Error} - Throws an error if the update fails
  */
 async function updateGameServerRoleID(guildId, gameId) {
     try {
@@ -64,8 +64,8 @@ async function updateGameServerRoleID(guildId, gameId) {
  * Fetch a ServerConfig instance using a specified guildId
  *
  * @param {string} guildId - The ID of the guild
- * @returns {Promise<Object|null} The ServerConfig instance found, otherwise null
- * @throws {Error} Throws an error if the fetch fails
+ * @returns {Promise<Object|null} - The ServerConfig instance found, otherwise null
+ * @throws {Error} - Throws an error if the fetch fails
  */
 async function fetchServerConfigByGuildID(guildId) {
     try {
@@ -87,8 +87,8 @@ async function fetchServerConfigByGuildID(guildId) {
  * Create a new ServerConfig for a guild
  *
  * @param {string} guildId - The ID for the guild the ServerConfig is for
- * @returns {Promise<Object|null} The ServerConfig instance created. May be null
- * @throws {Error} Throws an error if the creation fails
+ * @returns {Promise<Object|null} - The ServerConfig instance created. May be null
+ * @throws {Error} - Throws an error if the creation fails
  */
 async function createServerConfig(guildId) {
     try {
@@ -108,8 +108,8 @@ async function createServerConfig(guildId) {
  * Fetch the alarm role id for a guild
  *
  * @param {string} guildId - The ID for the guild
- * @returns {Promise<Object|null} The role id, otherwise null
- * @throws {Error} Throws an error if the fetch fails
+ * @returns {Promise<Object|null} - The role id, otherwise null
+ * @throws {Error} - Throws an error if the fetch fails
  */
 async function fetchAlarmRoleIdByGuildID(guildId) {
     try {
@@ -131,8 +131,8 @@ async function fetchAlarmRoleIdByGuildID(guildId) {
  * Fetch the game server role id for a guild
  *
  * @param {string} guildId - The ID for the guild
- * @returns {Promise<Object|null} The role id, otherwise null
- * @throws {Error} Throws an error if the fetch fails
+ * @returns {Promise<Object|null} - The role id, otherwise null
+ * @throws {Error} - Throws an error if the fetch fails
  */
 async function fetchGameServerRoleIdByGuildID(guildId) {
     try {
@@ -152,6 +152,31 @@ async function fetchGameServerRoleIdByGuildID(guildId) {
     }
 }
 
+/**
+ * Fetch the state of the alarm sticky pin using a guild ID
+ *
+ * @param {string} guildId - The ID for the guild
+ * @returns {Promise<Object|null} - The sticky pin state, otherwise null
+ * @throws {Error} - Throws an error if the fetch fails
+ */
+async function fetchAlarmStickyStateByGuildID(guildId) {
+    try {
+        // Fetch the state of the alarm sticky pin
+        const config = await ServerConfigModel.findOne({
+            where: {
+                guild_id: guildId,
+            },
+        });
+
+        return config.alarm_sticky_state;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error(
+            "Failed to fetch game server role ID: " + error.message
+        );
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfigByGuildID,
@@ -159,4 +184,5 @@ module.exports = {
     updateGameServerRoleID,
     fetchAlarmRoleIdByGuildID,
     fetchGameServerRoleIdByGuildID,
+    fetchAlarmStickyStateByGuildID,
 };
