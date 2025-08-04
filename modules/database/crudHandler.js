@@ -206,6 +206,31 @@ async function fetchAlarmStickyStateByGuildID(guildId) {
     }
 }
 
+/**
+ * Fetch the ID of the most recent sticky pinned alarm message
+ *
+ * @param {string} guildId - The ID for the guild
+ * @returns {Promise<Object|null} - The id of the message, otherwise null
+ * @throws {Error} - Throws an error if the fetch fails
+ */
+async function fetchAlarmLatestMessageByGuildID(guildId) {
+    try {
+        // Fetch the id of the most recent message
+        const config = await ServerConfigModel.findOne({
+            where: {
+                guild_id: guildId,
+            },
+        });
+
+        return config.alarm_latest_message_id;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error(
+            "Failed to fetch latest alarm message: " + error.message
+        );
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfigByGuildID,
@@ -215,4 +240,5 @@ module.exports = {
     fetchGameServerRoleIdByGuildID,
     fetchAlarmStickyStateByGuildID,
     updateAlarmStickyStatusByGuildID,
+    fetchAlarmLatestMessageByGuildID,
 };
