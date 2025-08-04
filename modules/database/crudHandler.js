@@ -171,8 +171,37 @@ async function fetchAlarmStickyStateByGuildID(guildId) {
         return config.alarm_sticky_state;
     } catch (error) {
         // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to fetch alarm sticky state: " + error.message);
+    }
+}
+
+/**
+ * Update the status of alarm sticky pin for a guild
+ *
+ * @param {string} guildId - The ID for the guild
+ * @param {boolean} state - The state for the sticky pin
+ * @returns {Promise<number>} - The result of the update operation
+ * @throws {Error} - Throws an error if the update fails
+ */
+async function updateAlarmStickyStatusByGuildID(guildId, state) {
+    try {
+        // Update the alarm sticky status
+        const config = await ServerConfigModel.update(
+            {
+                alarm_sticky_state: state,
+            },
+            {
+                where: {
+                    guild_id: guildId,
+                },
+            }
+        );
+
+        return config;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
         throw new Error(
-            "Failed to fetch game server role ID: " + error.message
+            "Failed to update alarm sticky status: " + error.message
         );
     }
 }
@@ -185,4 +214,5 @@ module.exports = {
     fetchAlarmRoleIdByGuildID,
     fetchGameServerRoleIdByGuildID,
     fetchAlarmStickyStateByGuildID,
+    updateAlarmStickyStatusByGuildID,
 };
