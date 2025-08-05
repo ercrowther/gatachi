@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const ServerConfigModel = require("../database/models/serverConfig");
 
 /**
