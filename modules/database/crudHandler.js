@@ -181,9 +181,16 @@ async function updateAlarmChannelID(guildId, channelId) {
 async function resetAlarmStatesForAllServerConfigs() {
     try {
         // Reset alarm state for all configs
-        const config = await ServerConfigModel.update({
-            alarm_sticky_state: false,
-        });
+        const config = await ServerConfigModel.update(
+            {
+                alarm_sticky_state: false,
+            },
+            {
+                where: {
+                    alarm_sticky_state: true,
+                },
+            }
+        );
 
         return config;
     } catch (error) {
