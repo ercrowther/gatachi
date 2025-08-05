@@ -200,6 +200,68 @@ async function resetAlarmStatesForAllServerConfigs() {
 }
 
 /**
+ * Reset the alarm_latest_message_id field to null for every server config.
+ * Useful to use when the bot is rebooting.
+ *
+ * @returns {Promise<number>} - The result of the update operation
+ * @throws {Error} - Throws an error if the update fails
+ */
+async function resetAlarmLatestMessageIdsForAllServerConfigs() {
+    try {
+        const result = await ServerConfigModel.update(
+            {
+                alarm_latest_message_id: null,
+            },
+            {
+                where: {
+                    alarm_latest_message_id: {
+                        [Op.ne]: null,
+                    },
+                },
+            }
+        );
+
+        return result;
+    } catch (error) {
+        throw new Error(
+            "Failed to reset all alarm_latest_message_id fields: " +
+                error.message
+        );
+    }
+}
+
+/**
+ * Reset the alarm_message_channel_id field to null for every server config.
+ * Useful to use when the bot is rebooting.
+ *
+ * @returns {Promise<number>} - The result of the update operation
+ * @throws {Error} - Throws an error if the update fails
+ */
+async function resetAlarmMessageChannelIdsForAllServerConfigs() {
+    try {
+        const result = await ServerConfigModel.update(
+            {
+                alarm_message_channel_id: null,
+            },
+            {
+                where: {
+                    alarm_message_channel_id: {
+                        [Op.ne]: null,
+                    },
+                },
+            }
+        );
+
+        return result;
+    } catch (error) {
+        throw new Error(
+            "Failed to reset all alarm_message_channel_id fields: " +
+                error.message
+        );
+    }
+}
+
+/**
  * Fetch a ServerConfig instance using a specified guildId
  *
  * @param {string} guildId - The ID of the guild
@@ -355,4 +417,6 @@ module.exports = {
     updateAlarmMessageID,
     updateAlarmChannelID,
     resetAlarmStatesForAllServerConfigs,
+    resetAlarmLatestMessageIdsForAllServerConfigs,
+    resetAlarmMessageChannelIdsForAllServerConfigs,
 };
