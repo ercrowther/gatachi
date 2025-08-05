@@ -231,6 +231,29 @@ async function fetchAlarmLatestMessageID(guildId) {
     }
 }
 
+/**
+ * Fetch the ID of the channel where the latest alarm message was sent
+ *
+ * @param {string} guildId - The ID for the guild
+ * @returns {Promise<Object|null} - The id of the channel, otherwise null
+ * @throws {Error} - Throws an error if the fetch fails
+ */
+async function fetchAlarmMessageChannelID(guildId) {
+    try {
+        // Fetch the id of the channel for the most recent alarm message
+        const config = await ServerConfigModel.findOne({
+            where: {
+                guild_id: guildId,
+            },
+        });
+
+        return config.alarm_message_channel_id;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to fetch alarm channel: " + error.message);
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfig,
@@ -241,4 +264,5 @@ module.exports = {
     fetchAlarmStickyState,
     updateAlarmStickyStatus,
     fetchAlarmLatestMessageID,
+    fetchAlarmMessageChannelID,
 };
