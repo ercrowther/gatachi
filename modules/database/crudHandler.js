@@ -173,6 +173,26 @@ async function updateAlarmChannelID(guildId, channelId) {
 }
 
 /**
+ * Change the alarm states back to false for every server config. Useful to use when the bot is rebooting
+ *
+ * @returns {Promise<number>} - The result of the update operation
+ * @throws {Error} - Throws an error if the update fails
+ */
+async function resetAlarmStatesForAllServerConfigs() {
+    try {
+        // Reset alarm state for all configs
+        const config = await ServerConfigModel.update({
+            alarm_sticky_state: false,
+        });
+
+        return config;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to reset all alarm states: " + error.message);
+    }
+}
+
+/**
  * Fetch a ServerConfig instance using a specified guildId
  *
  * @param {string} guildId - The ID of the guild
@@ -327,4 +347,5 @@ module.exports = {
     fetchAlarmMessageChannelID,
     updateAlarmMessageID,
     updateAlarmChannelID,
+    resetAlarmStatesForAllServerConfigs,
 };
