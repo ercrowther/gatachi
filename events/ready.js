@@ -9,8 +9,14 @@ module.exports = {
     async execute(client) {
         ServerConfigModel.sync();
 
-        // Handle a case where the bot shutdown during an active sticky pin
-        await crudHandler.resetAlarmStatesForAllServerConfigs();
+        try {
+            // Handle a case where the bot shutdown during an active sticky pin
+            await crudHandler.resetAlarmStatesForAllServerConfigs();
+            await crudHandler.resetAlarmMessageChannelIdsForAllServerConfigs();
+            await crudHandler.resetAlarmLatestMessageIdsForAllServerConfigs();
+        } catch (error) {
+            console.error(`❌ ERROR: ${error}`);
+        }
 
         console.log(`✅ Client is ready! Logged in as ${client.user.tag}`);
     },
