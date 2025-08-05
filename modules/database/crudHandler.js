@@ -89,7 +89,7 @@ async function updateGameServerRoleID(guildId, gameId) {
  * @returns {Promise<number>} - The result of the update operation
  * @throws {Error} - Throws an error if the update fails
  */
-async function updateAlarmStickyStatusByGuildID(guildId, state) {
+async function updateAlarmStickyStatus(guildId, state) {
     try {
         // Update the alarm sticky status
         const config = await ServerConfigModel.update(
@@ -119,7 +119,7 @@ async function updateAlarmStickyStatusByGuildID(guildId, state) {
  * @returns {Promise<Object|null} - The ServerConfig instance found, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
-async function fetchServerConfigByGuildID(guildId) {
+async function fetchServerConfig(guildId) {
     try {
         // Select the config by guild id
         const config = await ServerConfigModel.findOne({
@@ -142,7 +142,7 @@ async function fetchServerConfigByGuildID(guildId) {
  * @returns {Promise<Object|null} - The role id, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
-async function fetchAlarmRoleIdByGuildID(guildId) {
+async function fetchAlarmRoleId(guildId) {
     try {
         // Fetch the alarm role's id
         const config = await ServerConfigModel.findOne({
@@ -165,7 +165,7 @@ async function fetchAlarmRoleIdByGuildID(guildId) {
  * @returns {Promise<Object|null} - The role id, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
-async function fetchGameServerRoleIdByGuildID(guildId) {
+async function fetchGameServerRoleId(guildId) {
     try {
         // Fetch the game server role's id
         const config = await ServerConfigModel.findOne({
@@ -190,7 +190,7 @@ async function fetchGameServerRoleIdByGuildID(guildId) {
  * @returns {Promise<Object|null} - The sticky pin state, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
-async function fetchAlarmStickyStateByGuildID(guildId) {
+async function fetchAlarmStickyState(guildId) {
     try {
         // Fetch the state of the alarm sticky pin
         const config = await ServerConfigModel.findOne({
@@ -207,13 +207,13 @@ async function fetchAlarmStickyStateByGuildID(guildId) {
 }
 
 /**
- * Fetch the ID of the most recent sticky pinned alarm message
+ * Fetch the ID of the most recent sticky pinned alarm message for a guild
  *
  * @param {string} guildId - The ID for the guild
  * @returns {Promise<Object|null} - The id of the message, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
-async function fetchAlarmLatestMessageIDByGuildID(guildId) {
+async function fetchAlarmLatestMessageID(guildId) {
     try {
         // Fetch the id of the most recent message
         const config = await ServerConfigModel.findOne({
@@ -233,12 +233,12 @@ async function fetchAlarmLatestMessageIDByGuildID(guildId) {
 
 module.exports = {
     updateAlarmRoleID,
-    fetchServerConfigByGuildID,
+    fetchServerConfig,
     createServerConfig,
     updateGameServerRoleID,
-    fetchAlarmRoleIdByGuildID,
-    fetchGameServerRoleIdByGuildID,
-    fetchAlarmStickyStateByGuildID,
-    updateAlarmStickyStatusByGuildID,
-    fetchAlarmLatestMessageIDByGuildID,
+    fetchAlarmRoleId,
+    fetchGameServerRoleId,
+    fetchAlarmStickyState,
+    updateAlarmStickyStatus,
+    fetchAlarmLatestMessageID,
 };
