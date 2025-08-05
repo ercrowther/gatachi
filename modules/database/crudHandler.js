@@ -116,7 +116,7 @@ async function updateAlarmStickyStatus(guildId, state) {
  * Update the most recent message id from the alarm sticky pin
  *
  * @param {string} guildId - The ID for the guild
- * @param {string} messageId - The state for the sticky pin
+ * @param {string} messageId - The message id
  * @returns {Promise<number>} - The result of the update operation
  * @throws {Error} - Throws an error if the update fails
  */
@@ -140,6 +140,35 @@ async function updateAlarmMessageID(guildId, messageId) {
         throw new Error(
             "Failed to update latest alarm message id: " + error.message
         );
+    }
+}
+
+/**
+ * Update the channel id where the latest message from the alarm pin is in
+ *
+ * @param {string} guildId - The ID for the guild
+ * @param {string} channelId - The channel id
+ * @returns {Promise<number>} - The result of the update operation
+ * @throws {Error} - Throws an error if the update fails
+ */
+async function updateAlarmChannelID(guildId, channelId) {
+    try {
+        // Update the alarm channel id
+        const config = await ServerConfigModel.update(
+            {
+                alarm_message_channel_id: channelId,
+            },
+            {
+                where: {
+                    guild_id: guildId,
+                },
+            }
+        );
+
+        return config;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to update alarm channel id: " + error.message);
     }
 }
 
@@ -297,4 +326,5 @@ module.exports = {
     fetchAlarmLatestMessageID,
     fetchAlarmMessageChannelID,
     updateAlarmMessageID,
+    updateAlarmChannelID,
 };
