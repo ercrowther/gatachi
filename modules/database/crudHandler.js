@@ -213,7 +213,7 @@ async function fetchAlarmStickyStateByGuildID(guildId) {
  * @returns {Promise<Object|null} - The id of the message, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
-async function fetchAlarmLatestMessageByGuildID(guildId) {
+async function fetchAlarmLatestMessageIDByGuildID(guildId) {
     try {
         // Fetch the id of the most recent message
         const config = await ServerConfigModel.findOne({
@@ -240,5 +240,5 @@ module.exports = {
     fetchGameServerRoleIdByGuildID,
     fetchAlarmStickyStateByGuildID,
     updateAlarmStickyStatusByGuildID,
-    fetchAlarmLatestMessageByGuildID,
+    fetchAlarmLatestMessageIDByGuildID,
 };
