@@ -17,9 +17,9 @@ async function handleStickyPin(message) {
     try {
         // Batching database queries for necessary information
         const [alarmRoleId, alarmChannelId, isAlarmActive] = Promise.all([
-            await crudHandler.fetchAlarmRoleId(guildId),
-            await crudHandler.fetchAlarmMessageChannelID(guildId),
-            await crudHandler.fetchAlarmStickyState(guildId),
+            crudHandler.fetchAlarmRoleId(guildId),
+            crudHandler.fetchAlarmMessageChannelID(guildId),
+            crudHandler.fetchAlarmStickyState(guildId),
         ]);
 
         // If there is an active alarm and the user isn't typing in that channel, return immediately
