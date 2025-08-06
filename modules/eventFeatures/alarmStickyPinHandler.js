@@ -16,7 +16,7 @@ async function handleStickyPin(message) {
 
     try {
         // Batching database queries for necessary information
-        const [alarmRoleId, alarmChannelId, isAlarmActive] = Promise.all([
+        const [alarmRoleId, alarmChannelId, isAlarmActive] = await Promise.all([
             crudHandler.fetchAlarmRoleId(guildId),
             crudHandler.fetchAlarmMessageChannelID(guildId),
             crudHandler.fetchAlarmStickyState(guildId),
