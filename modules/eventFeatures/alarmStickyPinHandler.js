@@ -1,8 +1,12 @@
+require("dotenv").config();
+const { EmbedBuilder } = require("discord.js");
 const crudHandler = require("../database/crudHandler");
 
 // A set of guild id's. If a guild id is in here, that guild's alarm repin is currently running
 // handleStickyPin can only run on a guild when it's id isnt here
 const pinLock = new Set();
+// Keep track of who called an alarm per guild
+const alarmAuthor = new Map();
 
 /**
  * Begin handling of a possible sticky pin for alarm. If the message does not mention the
@@ -45,6 +49,7 @@ async function handleStickyPin(message) {
             // If alarm mentioned, set state to true, otherwise return early
             if (message.mentions.roles.has(alarmRoleId)) {
                 await crudHandler.updateAlarmStickyStatus(guildId, true);
+                alarmAuthor.set(guildId, message.author.username);
             } else {
                 return;
             }
@@ -69,8 +74,25 @@ async function handleStickyPin(message) {
 }
 
 async function sendEmbedPin(channel, guildId) {
+    const message = new EmbedBuilder()
+        .setColor("#ffac32")
+        .setTitle("ACTIVE GAT ALARM!")
+        .setDescription(
+            "Your help is needed!!! Click the blue text to jump to the game servers! \n \n Joining? Send a reaction to this message to be included in the list of participants at the end! (don't worry if you're reaction disappears, you only need to react once!)"
+        )
+        .setThumbnail(process.env.ALARM_ICON_URL)
+        .addFields({
+            name: "Called by: ",
+            value: alarmAuthor.get(guildId),
+        })
+        .setTimestamp()
+        .setURL(process.env.ALARM_GAME_URL)
+        .setFooter({
+            text: "Hit conclude to end the alarm",
+        });
+
     // Send the message and additionally update the latest message id and alarm channel id
-    const sentMessage = await channel.send("test message");
+    const sentMessage = await channel.send({ embeds: [message] });
     await crudHandler.updateAlarmMessageID(guildId, sentMessage.id);
     await crudHandler.updateAlarmChannelID(guildId, channel.id);
 }
