@@ -1,5 +1,10 @@
 require("dotenv").config();
-const { EmbedBuilder } = require("discord.js");
+const {
+    EmbedBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ActionRowBuilder,
+} = require("discord.js");
 const crudHandler = require("../database/crudHandler");
 
 // A set of guild id's. If a guild id is in here, that guild's alarm repin is currently running
@@ -24,7 +29,6 @@ async function handleStickyPin(message) {
 
     // If guildId is present in the pinLock, it means this function is already running. Exit early
     if (pinLock.has(guildId)) {
-        console.log("returning");
         return;
     }
 
@@ -74,6 +78,13 @@ async function handleStickyPin(message) {
 }
 
 async function sendEmbedPin(channel, guildId) {
+    // Action row and button for the embed
+    const concludeButton = new ButtonBuilder()
+        .setCustomId("conclude")
+        .setLabel("Conclude")
+        .setStyle(ButtonStyle.Secondary);
+    const row = new ActionRowBuilder().addComponents(concludeButton);
+
     // Build the message
     const message = new EmbedBuilder()
         .setColor("#ffac32")
@@ -93,7 +104,10 @@ async function sendEmbedPin(channel, guildId) {
         });
 
     // Send the message and additionally update the latest message id and alarm channel id
-    const sentMessage = await channel.send({ embeds: [message] });
+    const sentMessage = await channel.send({
+        embeds: [message],
+        components: [row],
+    });
     sentMessage.react("🔔");
     await crudHandler.updateAlarmMessageID(guildId, sentMessage.id);
     await crudHandler.updateAlarmChannelID(guildId, channel.id);
