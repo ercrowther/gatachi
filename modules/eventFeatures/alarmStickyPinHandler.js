@@ -100,7 +100,7 @@ async function sendEmbedPin(channel, guildId) {
         .setTimestamp()
         .setURL(process.env.ALARM_GAME_URL)
         .setFooter({
-            text: "Hit conclude to end the alarm",
+            text: "Conclude when the gathunt is over, not handled",
         });
 
     // Send the message and additionally update the latest message id and alarm channel id
