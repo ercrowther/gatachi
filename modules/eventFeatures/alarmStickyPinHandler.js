@@ -72,9 +72,11 @@ async function removePreviousMessage(channel, guildId) {
 
 async function resetStatesAndValuesToDefault(guildId) {
     // Reset all alarm values to defaults
-    await crudHandler.updateAlarmMessageID(guildId, null);
-    await crudHandler.updateAlarmChannelID(guildId, null);
-    await crudHandler.updateAlarmStickyStatus(guildId, false);
+    await Promise.all([
+        crudHandler.updateAlarmMessageID(guildId, null),
+        crudHandler.updateAlarmChannelID(guildId, null),
+        crudHandler.updateAlarmStickyStatus(guildId, false),
+    ]);
 }
 
 module.exports = { handleStickyPin };
