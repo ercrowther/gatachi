@@ -82,7 +82,7 @@ async function sendEmbedPin(channel, guildId) {
     const concludeButton = new ButtonBuilder()
         .setCustomId("conclude")
         .setLabel("Conclude")
-        .setStyle(ButtonStyle.Secondary);
+        .setStyle(ButtonStyle.Primary);
     const row = new ActionRowBuilder().addComponents(concludeButton);
 
     // Build the message
