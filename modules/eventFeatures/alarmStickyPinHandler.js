@@ -49,7 +49,7 @@ async function handleStickyPin(message) {
             // If alarm mentioned, set state to true, otherwise return early
             if (message.mentions.roles.has(alarmRoleId)) {
                 await crudHandler.updateAlarmStickyStatus(guildId, true);
-                alarmAuthor.set(guildId, message.author.username);
+                alarmAuthor.set(guildId, message.author.id);
             } else {
                 return;
             }
@@ -74,6 +74,7 @@ async function handleStickyPin(message) {
 }
 
 async function sendEmbedPin(channel, guildId) {
+    // Build the message
     const message = new EmbedBuilder()
         .setColor("#ffac32")
         .setTitle("ACTIVE GAT ALARM!")
@@ -83,7 +84,7 @@ async function sendEmbedPin(channel, guildId) {
         .setThumbnail(process.env.ALARM_ICON_URL)
         .addFields({
             name: "Called by: ",
-            value: alarmAuthor.get(guildId),
+            value: `<@${alarmAuthor.get(guildId)}>`,
         })
         .setTimestamp()
         .setURL(process.env.ALARM_GAME_URL)
