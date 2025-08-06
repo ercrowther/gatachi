@@ -88,9 +88,9 @@ async function sendEmbedPin(channel, guildId) {
     // Build the message
     const message = new EmbedBuilder()
         .setColor("#ffac32")
-        .setTitle("ACTIVE GAT ALARM!")
+        .setTitle("**ACTIVE GAT ALARM!**")
         .setDescription(
-            "Your help is needed!!! Click the blue text to jump to the game servers! \n \n Joining? Send a reaction to this message to be included in the list of participants at the end! (don't worry if your reaction disappears, you only need to react once!)"
+            "**Your help is needed!!!** Click the blue text to jump to the game servers! \n \n Joining? Send a reaction to this message to be included in the list of participants at the end!\n(don't worry if your reaction disappears, you only need to react once!)"
         )
         .setThumbnail(process.env.ALARM_ICON_URL)
         .addFields({
