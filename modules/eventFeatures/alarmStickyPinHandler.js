@@ -107,10 +107,78 @@ async function sendEmbedPin(channel, guildId) {
     const sentMessage = await channel.send({
         embeds: [message],
         components: [row],
+        withResponse: true,
     });
+
+    createCollector(sentMessage);
+
     sentMessage.react("🔔");
+
+    // Save to database
     await crudHandler.updateAlarmMessageID(guildId, sentMessage.id);
     await crudHandler.updateAlarmChannelID(guildId, channel.id);
+}
+
+async function createCollector(message) {
+    // Timeout for button
+    const buttonTimeout = 3000;
+
+    const collector = message.createMessageComponentCollector({
+        time: buttonTimeout,
+    });
+
+    collector.on("collect", async (interaction) => {
+        try {
+            // Disable the conclude button
+            const disabledRow = new ActionRowBuilder().setComponents(
+                new ButtonBuilder()
+                    .setCustomId("conclude")
+                    .setLabel("Conclude")
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(true)
+            );
+
+            // Updated embed to show alarm conclusion
+            const concludedEmbed = EmbedBuilder.from(message)
+                .setColor("#7b7b7b")
+                .setThumbnail(process.env.ALARM_CONCLUDED_ICON_URL)
+                .setTitle("GATHUNT OVER")
+                .setDescription(
+                    "The alarm is concluded, thank you to everyone who came and helped!!!"
+                )
+                .setFooter({
+                    text: " ",
+                })
+                .addFields({
+                    name: "Called by: ",
+                    value: `<@${alarmAuthor.get(message.guild.id)}>`,
+                });
+
+            await interaction.update({
+                embeds: [concludedEmbed],
+                components: [disabledRow],
+            });
+        } catch (error) {
+            console.log(`❌ ERROR: ${error}`);
+        }
+    });
+
+    collector.on("end", async () => {
+        try {
+            // Re-add the button and re-create collector
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId("conclude")
+                    .setLabel("Conclude")
+                    .setStyle(ButtonStyle.Primary)
+            );
+
+            await message.edit({ components: [row] });
+            createCollector(message);
+        } catch (error) {
+            console.log(`❌ ERROR: ${error}`);
+        }
+    });
 }
 
 async function removePreviousMessage(channel, guildId) {
