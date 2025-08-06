@@ -1,5 +1,9 @@
 const crudHandler = require("../database/crudHandler");
 
+// A set of guild id's. If a guild id is in here, that guild's alarm repin is currently running
+// handleStickyPin can only run on a guild when it's id isnt here
+const pinLock = new Set();
+
 /**
  * Begin handling of a possible sticky pin for alarm. If the message does not mention the
  * alarm role, this function will do nothing
@@ -13,6 +17,15 @@ async function handleStickyPin(message) {
     const client = message.client;
     // Message related variables
     const channel = client.channels.cache.get(message.channelId);
+
+    // If guildId is present in the pinLock, it means this function is already running. Exit early
+    if (pinLock.has(guildId)) {
+        console.log("returning");
+        return;
+    }
+
+    // Lock using guild id
+    pinLock.add(guildId);
 
     try {
         // Batching database queries for necessary information
@@ -49,24 +62,36 @@ async function handleStickyPin(message) {
         await resetStatesAndValuesToDefault(guildId).catch((error2) => {
             console.log(`❌ ERROR: ${error2}`);
         });
+    } finally {
+        // Unlock the guild
+        pinLock.delete(guildId);
     }
 }
 
 async function sendEmbedPin(channel, guildId) {
     // Send the message and additionally update the latest message id and alarm channel id
-    channel.send("test message").then(async (sentMessage) => {
-        await crudHandler.updateAlarmMessageID(guildId, sentMessage.id);
-        await crudHandler.updateAlarmChannelID(guildId, channel.id);
-    });
+    const sentMessage = await channel.send("test message");
+    await crudHandler.updateAlarmMessageID(guildId, sentMessage.id);
+    await crudHandler.updateAlarmChannelID(guildId, channel.id);
 }
 
 async function removePreviousMessage(channel, guildId) {
     const messageId = await crudHandler.fetchAlarmLatestMessageID(guildId);
 
     if (messageId) {
-        // Delete the message
-        const message = await channel.messages.fetch(messageId);
-        message.delete();
+        try {
+            const message = await channel.messages.fetch(messageId);
+            await message.delete();
+        } catch (error) {
+            // If delete fails, handle and rethrow if its code 10008
+            if (error.code === 10008) {
+                console.warn(
+                    `⚠️ WARNING: Message with ID ${messageId} not found – already deleted`
+                );
+            } else {
+                throw error;
+            }
+        }
     }
 }
 
