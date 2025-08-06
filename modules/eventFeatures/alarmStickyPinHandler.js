@@ -110,6 +110,7 @@ async function sendEmbedPin(channel, guildId) {
         withResponse: true,
     });
 
+    // Make a 'conclude' button and keep it alive
     createCollector(sentMessage);
 
     sentMessage.react("🔔");
@@ -120,8 +121,9 @@ async function sendEmbedPin(channel, guildId) {
 }
 
 async function createCollector(message) {
+    const guildId = message.guild.id;
     // Timeout for button
-    const buttonTimeout = 3000;
+    const buttonTimeout = 900000;
 
     const collector = message.createMessageComponentCollector({
         time: buttonTimeout,
@@ -129,6 +131,11 @@ async function createCollector(message) {
 
     collector.on("collect", async (interaction) => {
         try {
+            // Return all values to default - alarm is over
+            resetStatesAndValuesToDefault(guildId).catch((error2) => {
+                console.log(`❌ ERROR: ${error2}`);
+            });
+
             // Disable the conclude button
             const disabledRow = new ActionRowBuilder().setComponents(
                 new ButtonBuilder()
@@ -151,7 +158,7 @@ async function createCollector(message) {
                 })
                 .addFields({
                     name: "Called by: ",
-                    value: `<@${alarmAuthor.get(message.guild.id)}>`,
+                    value: `<@${alarmAuthor.get(guildId)}>`,
                 });
 
             await interaction.update({
@@ -176,7 +183,15 @@ async function createCollector(message) {
             await message.edit({ components: [row] });
             createCollector(message);
         } catch (error) {
-            console.log(`❌ ERROR: ${error}`);
+            // It is common for the message to not be found due to the nature of the sending
+            // If not found, this can pretty much be ignored
+            if (error.code === 10008) {
+                console.warn(
+                    `⚠️ WARNING: Message with ID ${message.id} not found – already deleted`
+                );
+            } else {
+                console.log(`❌ ERROR: ${error}`);
+            }
         }
     });
 }
@@ -184,6 +199,7 @@ async function createCollector(message) {
 async function removePreviousMessage(channel, guildId) {
     const messageId = await crudHandler.fetchAlarmLatestMessageID(guildId);
 
+    // If message is found, try to delete the message
     if (messageId) {
         try {
             const message = await channel.messages.fetch(messageId);
