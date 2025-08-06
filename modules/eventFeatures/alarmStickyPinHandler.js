@@ -94,6 +94,7 @@ async function sendEmbedPin(channel, guildId) {
 
     // Send the message and additionally update the latest message id and alarm channel id
     const sentMessage = await channel.send({ embeds: [message] });
+    sentMessage.react("🔔");
     await crudHandler.updateAlarmMessageID(guildId, sentMessage.id);
     await crudHandler.updateAlarmChannelID(guildId, channel.id);
 }
