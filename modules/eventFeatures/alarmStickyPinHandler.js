@@ -80,7 +80,7 @@ async function handleStickyPin(message) {
 /**
  * Send the main embed message for the alarm
  *
- * @param {CHannel} channel - The channel to send it in
+ * @param {Channel} channel - The channel to send it in
  * @param {string} guildId - The id of the guild its for
  */
 async function sendEmbedPin(channel, guildId) {
@@ -130,7 +130,7 @@ async function sendEmbedPin(channel, guildId) {
  * Create a conclude button for a given message and keep it alive indefinitely until the message
  * is deleted or the alarm is concluded
  *
- * @param {*} message - The message to make the conclude button for
+ * @param {Message} message - The message to make the conclude button for
  */
 async function createCollector(message) {
     const guildId = message.guild.id;
