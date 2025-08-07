@@ -135,7 +135,7 @@ async function sendEmbedPin(channel, guildId) {
 async function createCollector(message) {
     const guildId = message.guild.id;
     // Timeout for button
-    const buttonTimeout = 3000;
+    const buttonTimeout = 900000;
 
     const collector = message.createMessageComponentCollector({
         time: buttonTimeout,
