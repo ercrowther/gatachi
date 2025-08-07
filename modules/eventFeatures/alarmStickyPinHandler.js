@@ -150,11 +150,16 @@ async function createCollector(sentMessage) {
 
     collector.on("collect", async (interaction) => {
         try {
-            // Check if the user has admin permissions
+            // Check if the user has the permission to conclude, being either admin or author
             const member = await interaction.guild.members.fetch(
                 interaction.user.id
             );
-            if (!member.permissions.has("Administrator")) {
+            if (
+                !(
+                    member.permissions.has("Administrator") ||
+                    member.id == alarmInfo.get(guildId).author
+                )
+            ) {
                 await interaction.reply({
                     content:
                         "❌ You don't have the permission to conclude the alarm!",
