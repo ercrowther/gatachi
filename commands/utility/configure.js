@@ -67,7 +67,7 @@ module.exports = {
 
         try {
             // Query to see if an instance of ServerConfig exists for the current guild
-            const configInstance = await crudHandler.fetchServerConfigByGuildID(
+            const configInstance = await crudHandler.fetchServerConfig(
                 guildId
             );
             if (!configInstance) {
