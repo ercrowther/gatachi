@@ -167,7 +167,7 @@ async function createCollector(message) {
                 .setThumbnail(process.env.ALARM_CONCLUDED_ICON_URL)
                 .setTitle("GATHUNT OVER")
                 .setDescription(
-                    "The alarm is concluded, thank you to everyone who came and helped!!!"
+                    "The alarm is concluded, thank you to everyone who joined and helped!!!"
                 )
                 .setFooter({
                     text: " ",
