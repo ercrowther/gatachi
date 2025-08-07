@@ -143,8 +143,6 @@ async function createCollector(sentMessage) {
     const buttonTimeout = 900000;
     // Hold mentions to the participants
     let mentionedParticiants = "";
-    // Total alarm time
-    const alarmTime = timeSince(alarmInfo.get(guildId).time);
 
     const collector = sentMessage.createMessageComponentCollector({
         time: buttonTimeout,
@@ -168,6 +166,9 @@ async function createCollector(sentMessage) {
 
             // Get reactions from the message
             await saveParticipantsFromAlarmMessage(sentMessage);
+
+            // Total alarm time
+            const alarmTime = timeSince(alarmInfo.get(guildId).time);
 
             // Return all values to default - alarm is over
             resetStatesAndValuesToDefault(guildId).catch((error2) => {
@@ -341,7 +342,7 @@ async function resetStatesAndValuesToDefault(guildId) {
         crudHandler.updateAlarmStickyStatus(guildId, false),
     ]);
 
-    alarmInfo.clear();
+    alarmInfo.delete(guildId);
 }
 
 module.exports = { handleStickyPin };
