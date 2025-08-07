@@ -250,9 +250,7 @@ async function createCollector(sentMessage) {
             // It is common for the message to not be found due to the nature of the sending
             // If not found, this can pretty much be ignored
             if (error.code === 10008) {
-                console.warn(
-                    `⚠️ WARNING: Message with ID ${sentMessage.id} not found – already deleted`
-                );
+                return;
             } else {
                 console.log(`❌ ERROR: ${error}`);
             }
@@ -279,13 +277,10 @@ async function removePreviousMessage(channel, guildId) {
 
             await message.delete();
         } catch (error) {
-            // If delete fails, handle and rethrow if its code 10008
             if (error.code === 10008) {
-                console.warn(
-                    `⚠️ WARNING: Message with ID ${messageId} not found – already deleted`
-                );
+                return;
             } else {
-                throw error;
+                console.log(`❌ ERROR: ${error}`);
             }
         }
     }
