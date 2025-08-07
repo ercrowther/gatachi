@@ -245,7 +245,7 @@ async function createCollector(sentMessage) {
             );
 
             await sentMessage.edit({ components: [row] });
-            createCollector(sentMessage, embed);
+            createCollector(sentMessage);
         } catch (error) {
             // It is common for the message to not be found due to the nature of the sending
             // If not found, this can pretty much be ignored
