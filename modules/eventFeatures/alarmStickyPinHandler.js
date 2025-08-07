@@ -10,8 +10,8 @@ const crudHandler = require("../database/crudHandler");
 // A set of guild id's. If a guild id is in here, that guild's alarm repin is currently running
 // handleStickyPin can only run on a guild when it's id isnt here
 const pinLock = new Set();
-// Keep track of who called an alarm per guild
-const alarmAuthor = new Map();
+// Keep track of info for the current alarm
+const alarmInfo = new Map();
 
 /**
  * Begin handling of a possible sticky pin for alarm. If the message does not mention the
@@ -53,7 +53,11 @@ async function handleStickyPin(message) {
             // If alarm mentioned, set state to true, otherwise return early
             if (message.mentions.roles.has(alarmRoleId)) {
                 await crudHandler.updateAlarmStickyStatus(guildId, true);
-                alarmAuthor.set(guildId, message.author.id);
+                alarmInfo.set(guildId, {
+                    author: message.author.id,
+                    time: Date.now(),
+                    participants: new Set(),
+                });
             } else {
                 return;
             }
@@ -101,7 +105,7 @@ async function sendEmbedPin(channel, guildId) {
         .setThumbnail(process.env.ALARM_ICON_URL)
         .addFields({
             name: "Called by: ",
-            value: `<@${alarmAuthor.get(guildId)}>`,
+            value: `<@${alarmInfo.get(guildId)?.author ?? "Unknown"}>`,
         })
         .setTimestamp()
         .setURL(process.env.ALARM_GAME_URL)
@@ -170,7 +174,7 @@ async function createCollector(message) {
                 })
                 .addFields({
                     name: "Called by: ",
-                    value: `<@${alarmAuthor.get(guildId)}>`,
+                    value: `<@${alarmInfo.get(guildId)?.author ?? "Unknown"}>`,
                 });
 
             await interaction.update({
@@ -256,6 +260,8 @@ async function resetStatesAndValuesToDefault(guildId) {
         crudHandler.updateAlarmChannelID(guildId, null),
         crudHandler.updateAlarmStickyStatus(guildId, false),
     ]);
+
+    alarmInfo.clear();
 }
 
 module.exports = { handleStickyPin };
