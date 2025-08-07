@@ -77,6 +77,12 @@ async function handleStickyPin(message) {
     }
 }
 
+/**
+ * Send the main embed message for the alarm
+ *
+ * @param {CHannel} channel - The channel to send it in
+ * @param {string} guildId - The id of the guild its for
+ */
 async function sendEmbedPin(channel, guildId) {
     // Action row and button for the embed
     const concludeButton = new ButtonBuilder()
@@ -120,10 +126,16 @@ async function sendEmbedPin(channel, guildId) {
     await crudHandler.updateAlarmChannelID(guildId, channel.id);
 }
 
+/**
+ * Create a conclude button for a given message and keep it alive indefinitely until the message
+ * is deleted or the alarm is concluded
+ *
+ * @param {*} message - The message to make the conclude button for
+ */
 async function createCollector(message) {
     const guildId = message.guild.id;
     // Timeout for button
-    const buttonTimeout = 900000;
+    const buttonTimeout = 3000;
 
     const collector = message.createMessageComponentCollector({
         time: buttonTimeout,
@@ -172,6 +184,14 @@ async function createCollector(message) {
 
     collector.on("end", async () => {
         try {
+            // Base case
+            const isAlarmActive = await crudHandler.fetchAlarmStickyState(
+                guildId
+            );
+            if (!isAlarmActive) {
+                return;
+            }
+
             // Re-add the button and re-create collector
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
@@ -196,6 +216,12 @@ async function createCollector(message) {
     });
 }
 
+/**
+ * Remove the most recent alarm message
+ *
+ * @param {Channel} channel - The channel where the message is
+ * @param {string} guildId - The guild the message is in
+ */
 async function removePreviousMessage(channel, guildId) {
     const messageId = await crudHandler.fetchAlarmLatestMessageID(guildId);
 
@@ -217,6 +243,12 @@ async function removePreviousMessage(channel, guildId) {
     }
 }
 
+/**
+ * Return the alarm values to their original defaults. Use this function when the alarm is
+ * concluded
+ *
+ * @param {string} guildId - The guild id for the alarm
+ */
 async function resetStatesAndValuesToDefault(guildId) {
     // Reset all alarm values to defaults
     await Promise.all([
