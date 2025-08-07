@@ -177,6 +177,8 @@ async function createCollector(message) {
                     value: `<@${alarmInfo.get(guildId)?.author ?? "Unknown"}>`,
                 });
 
+            message.reactions.removeAll();
+
             await interaction.update({
                 embeds: [concludedEmbed],
                 components: [disabledRow],
