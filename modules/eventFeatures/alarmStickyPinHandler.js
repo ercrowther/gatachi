@@ -55,7 +55,7 @@ async function handleStickyPin(message) {
                 await crudHandler.updateAlarmStickyStatus(guildId, true);
                 alarmInfo.set(guildId, {
                     author: message.author.id,
-                    time: Date.now(),
+                    time: new Date(),
                     participants: new Set(),
                 });
                 alarmInfo.get(guildId).participants.add(message.author.id);
@@ -143,6 +143,8 @@ async function createCollector(sentMessage) {
     const buttonTimeout = 900000;
     // Hold mentions to the participants
     let mentionedParticiants = "";
+    // Total alarm time
+    const alarmTime = timeSince(alarmInfo.get(guildId).time);
 
     const collector = sentMessage.createMessageComponentCollector({
         time: buttonTimeout,
@@ -150,6 +152,20 @@ async function createCollector(sentMessage) {
 
     collector.on("collect", async (interaction) => {
         try {
+            // Check if the user has admin permissions
+            const member = await interaction.guild.members.fetch(
+                interaction.user.id
+            );
+            if (!member.permissions.has("Administrator")) {
+                await interaction.reply({
+                    content:
+                        "❌ You don't have the permission to conclude the alarm!",
+                    ephemeral: true,
+                });
+
+                return;
+            }
+
             // Get reactions from the message
             await saveParticipantsFromAlarmMessage(sentMessage);
 
@@ -176,7 +192,7 @@ async function createCollector(sentMessage) {
             const concludedEmbed = EmbedBuilder.from(sentMessage)
                 .setColor("#7b7b7b")
                 .setThumbnail(process.env.ALARM_CONCLUDED_ICON_URL)
-                .setTitle("GATHUNT OVER")
+                .setTitle(`GATHUNT OVER! (${alarmTime})`)
                 .setDescription(
                     "The alarm is concluded, thank you to everyone who joined and helped!!!"
                 )
@@ -266,6 +282,28 @@ async function removePreviousMessage(channel, guildId) {
                 throw error;
             }
         }
+    }
+}
+
+/**
+ * Given a date, calculate how much time has passed in hours and minutes to the current date
+ *
+ * @param {Date} date
+ * @returns {String} Hours and minutes. If less then one hour, only minutes
+ */
+function timeSince(date) {
+    const now = Date.now();
+    // Milisecond difference
+    const diffMs = now - date.getTime();
+    // Minute difference
+    const diffMinutes = Math.floor(diffMs / 60000);
+
+    if (diffMinutes < 60) {
+        return `${diffMinutes}m`;
+    } else {
+        const hours = Math.floor(diffMinutes / 60);
+        const minutes = diffMinutes % 60;
+        return `${hours}h ${minutes}m`;
     }
 }
 
