@@ -58,6 +58,7 @@ async function handleStickyPin(message) {
                     time: Date.now(),
                     participants: new Set(),
                 });
+                alarmInfo.get(guildId).participants.add(message.author.id);
             } else {
                 return;
             }
@@ -121,7 +122,7 @@ async function sendEmbedPin(channel, guildId) {
     });
 
     // Make a 'conclude' button and keep it alive
-    createCollector(sentMessage, message);
+    createCollector(sentMessage);
 
     sentMessage.react("🔔");
 
@@ -136,10 +137,12 @@ async function sendEmbedPin(channel, guildId) {
  *
  * @param {Message} message - The message to make the conclude button for
  */
-async function createCollector(sentMessage, embed) {
+async function createCollector(sentMessage) {
     const guildId = sentMessage.guild.id;
     // Timeout for button
     const buttonTimeout = 900000;
+    // Hold mentions to the participants
+    let mentionedParticiants = "";
 
     const collector = sentMessage.createMessageComponentCollector({
         time: buttonTimeout,
@@ -164,6 +167,11 @@ async function createCollector(sentMessage, embed) {
                     .setDisabled(true)
             );
 
+            // Build a mention list of participants
+            alarmInfo.get(guildId).participants.forEach((userId) => {
+                mentionedParticiants += `<@${userId}> `;
+            });
+
             // Updated embed to show alarm conclusion
             const concludedEmbed = EmbedBuilder.from(sentMessage)
                 .setColor("#7b7b7b")
@@ -173,12 +181,17 @@ async function createCollector(sentMessage, embed) {
                     "The alarm is concluded, thank you to everyone who joined and helped!!!"
                 )
                 .setFooter({
-                    text: " ",
+                    text: "Participants list may not be complete",
                 })
-                .addFields({
-                    name: "Called by: ",
-                    value: `<@${alarmInfo.get(guildId)?.author ?? "Unknown"}>`,
-                });
+                .addFields(
+                    {
+                        name: "Called by: ",
+                        value: `<@${
+                            alarmInfo.get(guildId)?.author ?? "Unknown"
+                        }>`,
+                    },
+                    { name: "Participants:", value: mentionedParticiants }
+                );
 
             sentMessage.reactions.removeAll();
 
@@ -269,7 +282,7 @@ async function saveParticipantsFromAlarmMessage(message) {
         const users = await reaction.users.fetch();
 
         users.forEach((user) => {
-            if (reaction.emoji.name === "🔔") {
+            if (reaction.emoji.name === "🔔" && !user.bot) {
                 alarmInfo.get(guildId).participants.add(user.id);
             }
         });
