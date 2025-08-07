@@ -121,7 +121,7 @@ async function sendEmbedPin(channel, guildId) {
     });
 
     // Make a 'conclude' button and keep it alive
-    createCollector(sentMessage);
+    createCollector(sentMessage, message);
 
     sentMessage.react("🔔");
 
@@ -136,17 +136,20 @@ async function sendEmbedPin(channel, guildId) {
  *
  * @param {Message} message - The message to make the conclude button for
  */
-async function createCollector(message) {
-    const guildId = message.guild.id;
+async function createCollector(sentMessage, embed) {
+    const guildId = sentMessage.guild.id;
     // Timeout for button
     const buttonTimeout = 900000;
 
-    const collector = message.createMessageComponentCollector({
+    const collector = sentMessage.createMessageComponentCollector({
         time: buttonTimeout,
     });
 
     collector.on("collect", async (interaction) => {
         try {
+            // Get reactions from the message
+            await saveParticipantsFromAlarmMessage(sentMessage);
+
             // Return all values to default - alarm is over
             resetStatesAndValuesToDefault(guildId).catch((error2) => {
                 console.log(`❌ ERROR: ${error2}`);
@@ -162,7 +165,7 @@ async function createCollector(message) {
             );
 
             // Updated embed to show alarm conclusion
-            const concludedEmbed = EmbedBuilder.from(message)
+            const concludedEmbed = EmbedBuilder.from(sentMessage)
                 .setColor("#7b7b7b")
                 .setThumbnail(process.env.ALARM_CONCLUDED_ICON_URL)
                 .setTitle("GATHUNT OVER")
@@ -177,7 +180,7 @@ async function createCollector(message) {
                     value: `<@${alarmInfo.get(guildId)?.author ?? "Unknown"}>`,
                 });
 
-            message.reactions.removeAll();
+            sentMessage.reactions.removeAll();
 
             await interaction.update({
                 embeds: [concludedEmbed],
@@ -206,14 +209,14 @@ async function createCollector(message) {
                     .setStyle(ButtonStyle.Primary)
             );
 
-            await message.edit({ components: [row] });
-            createCollector(message);
+            await sentMessage.edit({ components: [row] });
+            createCollector(sentMessage, embed);
         } catch (error) {
             // It is common for the message to not be found due to the nature of the sending
             // If not found, this can pretty much be ignored
             if (error.code === 10008) {
                 console.warn(
-                    `⚠️ WARNING: Message with ID ${message.id} not found – already deleted`
+                    `⚠️ WARNING: Message with ID ${sentMessage.id} not found – already deleted`
                 );
             } else {
                 console.log(`❌ ERROR: ${error}`);
@@ -235,6 +238,10 @@ async function removePreviousMessage(channel, guildId) {
     if (messageId) {
         try {
             const message = await channel.messages.fetch(messageId);
+
+            // Get reactions from the message
+            await saveParticipantsFromAlarmMessage(message);
+
             await message.delete();
         } catch (error) {
             // If delete fails, handle and rethrow if its code 10008
@@ -246,6 +253,26 @@ async function removePreviousMessage(channel, guildId) {
                 throw error;
             }
         }
+    }
+}
+
+/**
+ * Given a message, save all non bot user's who reacted with a bell into memory
+ *
+ * @param {Message} message - The message that has the reactions
+ */
+async function saveParticipantsFromAlarmMessage(message) {
+    const guildId = message.guild.id;
+
+    // For every reaction, add it as a participant in memory
+    for (const reaction of message.reactions.cache.values()) {
+        const users = await reaction.users.fetch();
+
+        users.forEach((user) => {
+            if (reaction.emoji.name === "🔔") {
+                alarmInfo.get(guildId).participants.add(user.id);
+            }
+        });
     }
 }
 
