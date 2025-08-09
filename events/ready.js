@@ -1,4 +1,4 @@
-const { Events } = require("discord.js");
+const { Events, ActivityType } = require("discord.js");
 // Require database models
 const ServerConfigModel = require("../modules/database/models/serverConfig");
 const crudHandler = require("../modules/database/crudHandler");
@@ -19,5 +19,8 @@ module.exports = {
         }
 
         console.log(`✅ Client is ready! Logged in as ${client.user.tag}`);
+        client.user.setActivity("the safety of DW", {
+            type: ActivityType.Watching,
+        });
     },
 };

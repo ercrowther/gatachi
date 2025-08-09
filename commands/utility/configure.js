@@ -94,7 +94,7 @@ module.exports = {
             // If fails, log error to console and return a meaningful reply
             console.error(`❌ ERROR: ${error}`);
             const replyEmbed = new EmbedBuilder()
-                .setColor("#fc0303")
+                .setColor("#10b91f")
                 .setDescription("This command has failed unexpectedly.");
             await interaction.reply({
                 embeds: [replyEmbed],
@@ -105,7 +105,7 @@ module.exports = {
         }
 
         const successEmbed = new EmbedBuilder()
-            .setColor("#2596be")
+            .setColor("#10b91f")
             .setDescription(
                 "RoleID(s) successfully updated for the server's config."
             );

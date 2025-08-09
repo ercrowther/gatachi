@@ -76,7 +76,7 @@ module.exports = {
 
             // Build an embed using the data recieved by mcstatus
             const replyEmbed = new EmbedBuilder()
-                .setColor("#2596be")
+                .setColor("#10b91f")
                 .setTitle(serverip)
                 .setThumbnail(process.env.GAME_ICON_URL);
 
