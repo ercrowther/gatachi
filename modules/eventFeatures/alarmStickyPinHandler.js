@@ -198,7 +198,7 @@ async function createCollector(sentMessage) {
             const concludedEmbed = EmbedBuilder.from(sentMessage)
                 .setColor("#7b7b7b")
                 .setThumbnail(process.env.ALARM_CONCLUDED_ICON_URL)
-                .setTitle(`ALARM DISABLED! (${alarmTime})`)
+                .setTitle(`ALARM CONCLUDED! (${alarmTime})`)
                 .setDescription(
                     "The alarm is concluded, thank you to everyone who joined and helped!!!"
                 )
