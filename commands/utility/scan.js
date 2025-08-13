@@ -6,8 +6,9 @@ const {
 const crudHandler = require("../../modules/database/crudHandler");
 const robloxHandler = require("../../modules/robloxHandler");
 
-// A set of guild id's. If a guild id is in here, that guild is currently running the scan command
-const scanLock = new Set();
+// A map of guild id's to message ids. If a message can be found by it's id, then a scan is currently
+// active. If it can't be found, then a scan is not active
+const scanMsg = new Map();
 
 module.exports = {
     data: new SlashCommandBuilder()
