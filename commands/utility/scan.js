@@ -1,4 +1,8 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const {
+    SlashCommandBuilder,
+    EmbedBuilder,
+    PermissionFlagsBits,
+} = require("discord.js");
 const crudHandler = require("../../modules/database/crudHandler");
 const robloxHandler = require("../../modules/robloxHandler");
 
