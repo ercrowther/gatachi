@@ -48,6 +48,41 @@ async function returnUsersFriends(userId) {
 }
 
 /**
+ * Get the ROBLOX user id from a ROBLOX user's username
+ *
+ * @param {string} username - The ROBLOX username that you want the ID for
+ * @returns {Promise<number>} A promise that resolves into the roblox user's id
+ * @throws {Error} Throws an error if fetch fails or no data is returned
+ */
+async function getIDByUsername(username) {
+    const response = await fetch(
+        "https://users.roblox.com/v1/usernames/users",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                usernames: [username],
+                excludeBannedUsers: true,
+            }),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch user ID for: " + username);
+    }
+
+    const data = await response.json();
+
+    if (!data.data || data.data.length === 0 || !data.data[0].id) {
+        throw new Error("User not found or no ID for username: " + username);
+    }
+
+    return data.data[0].id;
+}
+
+/**
  * Pause execution for a specified amount of miliseconds
  *
  * This function returns a promise after a certain amnount of miliseconds, letting the caller of
@@ -62,4 +97,5 @@ function sleep(ms) {
 
 module.exports = {
     returnUsersFriends,
+    getIDByUsername,
 };
