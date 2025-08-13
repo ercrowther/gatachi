@@ -16,6 +16,7 @@ module.exports = {
                 .setName("username")
                 .setDescription("A roblox username to scan")
                 .setRequired(true)
-        ),
+        )
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {},
 };
