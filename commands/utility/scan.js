@@ -2,6 +2,9 @@ const {
     SlashCommandBuilder,
     EmbedBuilder,
     PermissionFlagsBits,
+    ButtonBuilder,
+    ButtonStyle,
+    ActionRowBuilder,
 } = require("discord.js");
 const crudHandler = require("../../modules/database/crudHandler");
 const robloxHandler = require("../../modules/robloxHandler");
@@ -69,7 +72,42 @@ module.exports = {
             return;
         }
 
-        console.log("Success");
+        // Main scanning logic
+        try {
+            const scanEmbed = new EmbedBuilder()
+                .setTitle("**SCANNER PRIMED**")
+                .setColor("#10b91f")
+                .setDescription(
+                    `Prepared to scan ${username}. Please select the scan's thoroughness below.`
+                );
+
+            // Create buttons and add them to the embed
+            const friendButton = new ButtonBuilder()
+                .setCustomId("friends")
+                .setLabel("Friends")
+                .setStyle(ButtonStyle.Primary);
+            const buttonRow = new ActionRowBuilder().addComponents(
+                friendButton
+            );
+
+            await interaction.reply({
+                embeds: [scanEmbed],
+                ephemeral: true,
+                components: [buttonRow],
+                withResponse: true,
+            });
+        } catch (error) {
+            // Send a meaningful message
+            const errorEmbed = new EmbedBuilder()
+                .setDescription(`**FATAL ERROR** - ${error}`)
+                .setColor("#fc0303");
+            await interaction.reply({
+                embeds: [errorEmbed],
+                ephemeral: true,
+            });
+
+            return;
+        }
     },
 };
 
