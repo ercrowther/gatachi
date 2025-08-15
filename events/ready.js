@@ -1,6 +1,7 @@
 const { Events, ActivityType } = require("discord.js");
 // Require database models
 const ServerConfigModel = require("../modules/database/models/serverConfig");
+const FlaggedUserModel = require("../modules/database/models/flaggedUser");
 const crudHandler = require("../modules/database/crudHandler");
 
 module.exports = {
@@ -8,6 +9,7 @@ module.exports = {
     once: true,
     async execute(client) {
         ServerConfigModel.sync();
+        FlaggedUserModel.sync();
 
         try {
             // Handle a case where the bot shutdown during an active sticky pin
