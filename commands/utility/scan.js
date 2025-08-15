@@ -110,18 +110,39 @@ module.exports = {
                 friendButton
             );
 
-            await interaction.reply({
+            const sentMessage = await interaction.reply({
                 embeds: [scanEmbed],
                 components: [buttonRow],
                 withResponse: true,
             });
-            const sentMessage = await interaction.fetchReply();
 
             // Set the channel and message id for the guild, 'locking' the scan command
             scanMsg.set(guildId, {
-                channelId: sentMessage.channel.id,
-                messageId: sentMessage.id,
+                channelId: sentMessage.resource.message.channelId,
+                messageId: sentMessage.resource.message.id,
             });
+
+            // Collect the button interaction
+            const collectorFilter = (i) => i.user.id === interaction.user.id;
+            const confirmation =
+                await sentMessage.resource.message.awaitMessageComponent({
+                    filter: collectorFilter,
+                    time: 900000,
+                });
+
+            if (confirmation.customId == "friends") {
+                const loadingEmbed = new EmbedBuilder()
+                    .setColor("#10b91f")
+                    .setDescription(
+                        "**Scanning in progress...** - Please wait. At a worse case, this can take up to 20 seconds"
+                    )
+                    .setFooter({
+                        text: "Scanning helps, but remember: always use your own judgement",
+                    });
+                await confirmation.update({
+                    embeds: [loadingEmbed],
+                });
+            }
         } catch (error) {
             // Send a meaningful message
             const errorEmbed = new EmbedBuilder()
