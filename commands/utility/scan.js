@@ -81,7 +81,13 @@ module.exports = {
                 .setThumbnail(process.env.SCAN_ICON_URL)
                 .setDescription(
                     `Prepared to scan ${username}. Please select the scan's thoroughness below.`
-                );
+                )
+                .addFields([
+                    {
+                        name: "'Friends'",
+                        value: "Only the user's ROBLOX friendslist",
+                    },
+                ]);
 
             // Create buttons and add them to the embed
             const friendButton = new ButtonBuilder()
