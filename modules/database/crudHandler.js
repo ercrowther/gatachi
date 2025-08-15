@@ -42,7 +42,7 @@ async function createFlaggedUser(userId, username) {
         return user;
     } catch (error) {
         // Throw an error again so the caller can handle it and send an appropriate message
-        throw new Error("Failed to create a ServerConfig: " + error.message);
+        throw new Error("Failed to create a FlaggedUser: " + error.message);
     }
 }
 
