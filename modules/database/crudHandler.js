@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const ServerConfigModel = require("../database/models/serverConfig");
+const FlaggedUserModel = require("../database/models/flaggedUser");
 
 /**
  * Create a new ServerConfig for a guild
@@ -16,6 +17,29 @@ async function createServerConfig(guildId) {
         });
 
         return config;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to create a ServerConfig: " + error.message);
+    }
+}
+
+/**
+ * Create a new FlaggedUser
+ *
+ * @param {number} userId - The ROBLOX user id of the user
+ * @param {string} username - The ROBLOX username of the user
+ * @returns {Promise<Object|null} - The FlaggedUser instance created. May be null
+ * @throws {Error} - Throws an error if the creation fails
+ */
+async function createFlaggedUser(userId, username) {
+    try {
+        // Create the flaggedUser
+        const user = await FlaggedUserModel.create({
+            userId: userId,
+            name: username,
+        });
+
+        return user;
     } catch (error) {
         // Throw an error again so the caller can handle it and send an appropriate message
         throw new Error("Failed to create a ServerConfig: " + error.message);
@@ -414,7 +438,7 @@ async function fetchAlarmMessageChannelID(guildId) {
 async function fetchFlaggedUser(userId) {
     try {
         // Fetch the FlaggedUser by a roblox user id
-        const user = await ServerConfigModel.findOne({
+        const user = await FlaggedUserModel.findOne({
             where: {
                 userId: userId,
             },
@@ -444,4 +468,5 @@ module.exports = {
     resetAlarmLatestMessageIdsForAllServerConfigs,
     resetAlarmMessageChannelIdsForAllServerConfigs,
     fetchFlaggedUser,
+    createFlaggedUser,
 };
