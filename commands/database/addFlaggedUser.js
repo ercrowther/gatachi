@@ -29,7 +29,7 @@ module.exports = {
         } catch {
             // Send a meaningful message
             const badUserEmbed = new EmbedBuilder()
-                .setDescription("**This username does not exist on ROBLOX!")
+                .setDescription("This username does not exist on ROBLOX!")
                 .setColor("#fc0303");
             await interaction.reply({
                 embeds: [badUserEmbed],
