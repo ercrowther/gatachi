@@ -39,18 +39,27 @@ module.exports = {
         const { channelId, messageId } = scanMsg.get(guildId);
         const channel = await guild.channels.fetch(channelId);
 
-        // If a scan is currently active, return early
-        if (channelId && channel.messages.fetch(messageId)) {
-            // Send a meaningful message
+        // Check if a scan message currently exists
+        let messageExists = false;
+        if (channel) {
+            try {
+                const message = await channel.messages.fetch(messageId);
+                if (message) {
+                    messageExists = true;
+                }
+            } catch {
+                messageExists = false;
+            }
+        }
+
+        // If a scan message currently exists, a scan is active. Do not continue
+        if (messageExists) {
             const lockEmbed = new EmbedBuilder()
                 .setDescription(
                     "**REQUEST DENIED** - A scan is already taking place!"
                 )
                 .setColor("#fc0303");
-            await interaction.reply({
-                embeds: [lockEmbed],
-                ephemeral: true,
-            });
+            await interaction.reply({ embeds: [lockEmbed], ephemeral: true });
 
             return;
         }
@@ -87,7 +96,10 @@ module.exports = {
                         name: "'Friends'",
                         value: "Only the user's ROBLOX friendslist",
                     },
-                ]);
+                ])
+                .setFooter({
+                    text: "Scanning helps, but remember: always use your own judgement",
+                });
 
             // Create buttons and add them to the embed
             const friendButton = new ButtonBuilder()
@@ -100,18 +112,23 @@ module.exports = {
 
             await interaction.reply({
                 embeds: [scanEmbed],
-                ephemeral: true,
                 components: [buttonRow],
                 withResponse: true,
+            });
+            const sentMessage = await interaction.fetchReply();
+
+            // Set the channel and message id for the guild, 'locking' the scan command
+            scanMsg.set(guildId, {
+                channelId: sentMessage.channel.id,
+                messageId: sentMessage.id,
             });
         } catch (error) {
             // Send a meaningful message
             const errorEmbed = new EmbedBuilder()
                 .setDescription(`**FATAL ERROR** - ${error}`)
                 .setColor("#fc0303");
-            await interaction.reply({
+            await interaction.editReply({
                 embeds: [errorEmbed],
-                ephemeral: true,
             });
 
             return;
@@ -126,6 +143,6 @@ module.exports = {
  */
 function setInitialGuildEntry(guildId) {
     if (!scanMsg.get(guildId)) {
-        scanMsg.set(guildId, { channelId: 0, messageId: 0 });
+        scanMsg.set(guildId, { channelId: null, messageId: null });
     }
 }
