@@ -1,3 +1,4 @@
+require("dotenv").config();
 const {
     SlashCommandBuilder,
     EmbedBuilder,
@@ -77,6 +78,7 @@ module.exports = {
             const scanEmbed = new EmbedBuilder()
                 .setTitle("**SCANNER PRIMED**")
                 .setColor("#10b91f")
+                .setThumbnail(process.env.SCAN_ICON_URL)
                 .setDescription(
                     `Prepared to scan ${username}. Please select the scan's thoroughness below.`
                 );
