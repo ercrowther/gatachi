@@ -26,6 +26,7 @@ module.exports = {
     async execute(interaction) {
         const guild = interaction.guild;
         const guildId = interaction.guildId;
+        const username = interaction.options.getString("username");
 
         setInitialGuildEntry(guildId);
 
@@ -33,7 +34,7 @@ module.exports = {
         const { channelId, messageId } = scanMsg.get(guildId);
         const channel = await guild.channels.fetch(channelId);
 
-        // If scan is active, lock and continue. Otherwise return early
+        // If a scan is currently active, return early
         if (channelId && channel.messages.fetch(messageId)) {
             // Send a meaningful message
             const lockEmbed = new EmbedBuilder()
@@ -45,9 +46,6 @@ module.exports = {
             });
 
             return;
-        } else {
-            console.log("Inactive scan");
-            
         }
     },
 };
