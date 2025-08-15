@@ -27,6 +27,7 @@ module.exports = {
         const guild = interaction.guild;
         const guildId = interaction.guildId;
         const username = interaction.options.getString("username");
+        let userId = 0;
 
         setInitialGuildEntry(guildId);
 
@@ -38,15 +39,37 @@ module.exports = {
         if (channelId && channel.messages.fetch(messageId)) {
             // Send a meaningful message
             const lockEmbed = new EmbedBuilder()
-                .setName("REQUEST DENIED - A scan is already taking place!")
+                .setDescription(
+                    "**REQUEST DENIED** - A scan is already taking place!"
+                )
                 .setColor("#fc0303");
             await interaction.reply({
-                embeds: [successEmbed],
+                embeds: [lockEmbed],
                 ephemeral: true,
             });
 
             return;
         }
+
+        // Guard clause for making sure the username links to a valid roblox profile
+        try {
+            userId = await robloxHandler.getIDByUsername(username);
+        } catch {
+            // Send a meaningful message
+            const badUserEmbed = new EmbedBuilder()
+                .setDescription(
+                    "**CANNOT PRIME SCANNER** - The username does not exist!"
+                )
+                .setColor("#fc0303");
+            await interaction.reply({
+                embeds: [badUserEmbed],
+                ephemeral: true,
+            });
+
+            return;
+        }
+
+        console.log("Success");
     },
 };
 
