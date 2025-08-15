@@ -44,12 +44,9 @@ module.exports = {
 
             const successEmbed = new EmbedBuilder()
                 .setColor("#10b91f")
-                .setDescription("Successfully added account to list of flagged users!");
-            await interaction.reply({
-                embeds: [replyEmbed],
-                ephemeral: true,
-            });
-
+                .setDescription(
+                    "Successfully added account to list of flagged users!"
+                );
             await interaction.reply({
                 embeds: [successEmbed],
                 ephemeral: true,
