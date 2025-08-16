@@ -225,9 +225,9 @@ function setInitialGuildEntry(guildId) {
 function buildStringFromSetOfFlaggedUsers(set) {
     let string = "";
 
-    for (const item of set) {
-        string += item?.name + ", ";
-    }
+    string = Array.from(set)
+        .map((friend) => friend.name)
+        .join(", ");
 
     if (string.length == 0) {
         string = "None found";
