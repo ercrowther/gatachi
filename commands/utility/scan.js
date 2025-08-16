@@ -151,9 +151,9 @@ module.exports = {
 
             // Make a set of which friends are flagged
             const foundUserFriends = new Set();
-            for (const friend of userFriends) {
+            for (const friendId of userFriends) {
                 const foundFriend = await crudHandler.fetchFlaggedUser(
-                    friend.userId
+                    friendId
                 );
 
                 if (foundFriend) {
