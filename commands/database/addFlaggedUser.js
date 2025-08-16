@@ -39,6 +39,35 @@ module.exports = {
             return;
         }
 
+        // Guard clause to make sure the user doesn't already exist
+        try {
+            const user = await crudHandler.fetchFlaggedUser(userId);
+
+            if (user) {
+                // Send a meaningful message
+                const duplicateEmbed = new EmbedBuilder()
+                    .setDescription("This account is already flagged!")
+                    .setColor("#fc0303");
+                await interaction.reply({
+                    embeds: [duplicateEmbed],
+                    ephemeral: true,
+                });
+
+                return;
+            }
+        } catch (error) {
+            // Send a meaningful message
+            const errorEmbed = new EmbedBuilder()
+                .setDescription(`**FATAL ERROR** - ${error}`)
+                .setColor("#fc0303");
+            await interaction.reply({
+                embeds: [errorEmbed],
+                ephemeral: true,
+            });
+
+            return;
+        }
+
         try {
             await crudHandler.createFlaggedUser(userId, username);
 
