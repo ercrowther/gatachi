@@ -83,7 +83,7 @@ async function getIDByUsername(username) {
 }
 
 /**
- * Get the avatar headshot of a roblox account
+ * Get the avatar headshot of a ROBLOX account
  *
  * @param {number} userId - The user id for a ROBLOX profile
  * @returns {string} An image url to an avatar headshot
@@ -103,6 +103,24 @@ async function getHeadshot(userId) {
 }
 
 /**
+ * Get detailed information about a ROBLOX account
+ *
+ * @param {number} userId - The user id for a ROBLOX profile
+ * @returns {Object} An object containing detailed info about the user
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function getDetailedInfoOfUser(userId) {
+    const response = await fetch(`https://users.roblox.com/v1/users/${userId}`);
+    const data = await response.json();
+
+    if (response.status != 200) {
+        throw new Error("Failed to fetch user info for: " + userId);
+    }
+
+    return data.data;
+}
+
+/**
  * Pause execution for a specified amount of miliseconds
  *
  * This function returns a promise after a certain amnount of miliseconds, letting the caller of
@@ -119,4 +137,5 @@ module.exports = {
     returnUsersFriends,
     getIDByUsername,
     getHeadshot,
+    getDetailedInfoOfUser,
 };
