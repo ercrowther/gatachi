@@ -162,6 +162,7 @@ module.exports = {
                 }
             }
 
+            const headshotUrl = await robloxHandler.getHeadshot(userId);
             const infoEmbed = new EmbedBuilder()
                 .setColor("#10b91f")
                 .setTitle("**SCAN COMPLETE!**")
@@ -169,7 +170,7 @@ module.exports = {
                 .setDescription(
                     "Click the blue text above to go to the user's profile. The information below is a summary of the information gathered from the scan."
                 )
-                .setThumbnail(process.env.SCAN_ICON_URL)
+                .setThumbnail(headshotUrl)
                 .addFields(
                     {
                         name: "Total Violations",
