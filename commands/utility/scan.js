@@ -130,19 +130,38 @@ module.exports = {
                     time: 900000,
                 });
 
-            if (confirmation.customId == "friends") {
-                const loadingEmbed = new EmbedBuilder()
-                    .setColor("#10b91f")
-                    .setDescription(
-                        "**Scanning in progress...** - Please wait. At a worse case, this can take up to 20 seconds"
-                    )
-                    .setFooter({
-                        text: "Scanning helps, but remember: always use your own judgement",
-                    });
-                await confirmation.update({
-                    embeds: [loadingEmbed],
+            // Variables to hold all the gotten data
+            let userFriends = new Set();
+
+            const loadingEmbed = new EmbedBuilder()
+                .setColor("#10b91f")
+                .setDescription(
+                    "**Scanning in progress...** - Please wait. At a worse case, this can take up to 20 seconds"
+                )
+                .setFooter({
+                    text: "Scanning helps, but remember: always use your own judgement",
                 });
+            await confirmation.update({
+                embeds: [loadingEmbed],
+            });
+
+            if (confirmation.customId == "friends") {
+                userFriends = await robloxHandler.returnUsersFriends(userId);
             }
+
+            // Make a set of which friends are flagged
+            const foundUserFriends = new Set();
+            for (const friend of userFriends) {
+                const foundFriend = await crudHandler.fetchFlaggedUser(
+                    friend.userId
+                );
+
+                if (foundFriend) {
+                    foundUserFriends.add(foundFriend);
+                }
+            }
+
+            console.log(buildStringFromSetOfFlaggedUsers(foundUserFriends));
         } catch (error) {
             // Send a meaningful message
             const errorEmbed = new EmbedBuilder()
@@ -166,4 +185,24 @@ function setInitialGuildEntry(guildId) {
     if (!scanMsg.get(guildId)) {
         scanMsg.set(guildId, { channelId: null, messageId: null });
     }
+}
+
+/**
+ * Given a set of FlaggedUsers, make a string of their names. The string returned will be "None found" if empty set.
+ *
+ * @param {Set<FlaggedUser>} set - A set containing flagged users
+ * @returns {string} A string of the flagged user's names
+ */
+function buildStringFromSetOfFlaggedUsers(set) {
+    let string = "";
+
+    for (const item of set) {
+        string += item?.name + ", ";
+    }
+
+    if (string.length == 0) {
+        string = "None found";
+    }
+
+    return string;
 }
