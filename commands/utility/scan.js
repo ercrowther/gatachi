@@ -143,6 +143,7 @@ module.exports = {
                 });
             await confirmation.update({
                 embeds: [loadingEmbed],
+                components: [],
             });
 
             if (confirmation.customId == "friends") {
@@ -161,7 +162,27 @@ module.exports = {
                 }
             }
 
-            console.log(buildStringFromSetOfFlaggedUsers(foundUserFriends));
+            const infoEmbed = new EmbedBuilder()
+                .setColor("#10b91f")
+                .setTitle("**SCAN COMPLETE!**")
+                .setURL(`https://www.roblox.com/users/${userId}/profile`)
+                .setDescription(
+                    "Click the blue text above to go to the user's profile. The information below is a summary of the information gathered from the scan."
+                )
+                .setThumbnail(process.env.SCAN_ICON_URL)
+                .addFields({
+                    name: "Flagged Friends",
+                    value: buildStringFromSetOfFlaggedUsers(foundUserFriends),
+                })
+                .setFooter({
+                    text: "Scanning helps, but remember: always use your own judgement",
+                });
+            await confirmation.editReply({
+                embeds: [infoEmbed],
+                components: [],
+            });
+
+            scanMsg.delete(guildId);
         } catch (error) {
             // Send a meaningful message
             const errorEmbed = new EmbedBuilder()
