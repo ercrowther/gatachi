@@ -67,9 +67,7 @@ module.exports = {
 
         try {
             // Query to see if an instance of ServerConfig exists for the current guild
-            const configInstance = await crudHandler.fetchServerConfig(
-                guildId
-            );
+            const configInstance = await crudHandler.fetchServerConfig(guildId);
             if (!configInstance) {
                 // If one does not exist yet, create one before continuing.
                 await crudHandler.createServerConfig(guildId);
@@ -94,7 +92,7 @@ module.exports = {
             // If fails, log error to console and return a meaningful reply
             console.error(`❌ ERROR: ${error}`);
             const replyEmbed = new EmbedBuilder()
-                .setColor("#10b91f")
+                .setColor("#fc0303")
                 .setDescription("This command has failed unexpectedly.");
             await interaction.reply({
                 embeds: [replyEmbed],

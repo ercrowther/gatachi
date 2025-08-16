@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const ServerConfigModel = require("../database/models/serverConfig");
+const FlaggedUserModel = require("../database/models/flaggedUser");
 
 /**
  * Create a new ServerConfig for a guild
@@ -19,6 +20,29 @@ async function createServerConfig(guildId) {
     } catch (error) {
         // Throw an error again so the caller can handle it and send an appropriate message
         throw new Error("Failed to create a ServerConfig: " + error.message);
+    }
+}
+
+/**
+ * Create a new FlaggedUser
+ *
+ * @param {number} userId - The ROBLOX user id of the user
+ * @param {string} username - The ROBLOX username of the user
+ * @returns {Promise<Object|null} - The FlaggedUser instance created. May be null
+ * @throws {Error} - Throws an error if the creation fails
+ */
+async function createFlaggedUser(userId, username) {
+    try {
+        // Create the flaggedUser
+        const user = await FlaggedUserModel.create({
+            userId: userId,
+            name: username,
+        });
+
+        return user;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to create a FlaggedUser: " + error.message);
     }
 }
 
@@ -266,7 +290,7 @@ async function resetAlarmMessageChannelIdsForAllServerConfigs() {
  * Fetch a ServerConfig instance using a specified guildId
  *
  * @param {string} guildId - The ID of the guild
- * @returns {Promise<Object|null} - The ServerConfig instance found, otherwise null
+ * @returns {Promise<Object|null>} - The ServerConfig instance found, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
 async function fetchServerConfig(guildId) {
@@ -289,7 +313,7 @@ async function fetchServerConfig(guildId) {
  * Fetch the alarm role id for a guild
  *
  * @param {string} guildId - The ID for the guild
- * @returns {Promise<Object|null} - The role id, otherwise null
+ * @returns {Promise<Object|null>} - The role id, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
 async function fetchAlarmRoleId(guildId) {
@@ -312,7 +336,7 @@ async function fetchAlarmRoleId(guildId) {
  * Fetch the game server role id for a guild
  *
  * @param {string} guildId - The ID for the guild
- * @returns {Promise<Object|null} - The role id, otherwise null
+ * @returns {Promise<Object|null>} - The role id, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
 async function fetchGameServerRoleId(guildId) {
@@ -337,7 +361,7 @@ async function fetchGameServerRoleId(guildId) {
  * Fetch the state of the alarm sticky pin using a guild ID
  *
  * @param {string} guildId - The ID for the guild
- * @returns {Promise<Object|null} - The sticky pin state, otherwise null
+ * @returns {Promise<Object|null>} - The sticky pin state, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
 async function fetchAlarmStickyState(guildId) {
@@ -360,7 +384,7 @@ async function fetchAlarmStickyState(guildId) {
  * Fetch the ID of the most recent sticky pinned alarm message for a guild
  *
  * @param {string} guildId - The ID for the guild
- * @returns {Promise<Object|null} - The id of the message, otherwise null
+ * @returns {Promise<Object|null>} - The id of the message, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
 async function fetchAlarmLatestMessageID(guildId) {
@@ -385,7 +409,7 @@ async function fetchAlarmLatestMessageID(guildId) {
  * Fetch the ID of the channel where the latest alarm message was sent
  *
  * @param {string} guildId - The ID for the guild
- * @returns {Promise<Object|null} - The id of the channel, otherwise null
+ * @returns {Promise<Object|null>} - The id of the channel, otherwise null
  * @throws {Error} - Throws an error if the fetch fails
  */
 async function fetchAlarmMessageChannelID(guildId) {
@@ -401,6 +425,29 @@ async function fetchAlarmMessageChannelID(guildId) {
     } catch (error) {
         // Throw an error again so the caller can handle it and send an appropriate message
         throw new Error("Failed to fetch alarm channel: " + error.message);
+    }
+}
+
+/**
+ * Fetch a FlaggedUser object using the id of a ROBLOX account
+ *
+ * @param {number} userId - A ROBLOX user id of an account
+ * @returns {Promise<Object|null>} An object representing a FlaggedUser, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchFlaggedUser(userId) {
+    try {
+        // Fetch the FlaggedUser by a roblox user id
+        const user = await FlaggedUserModel.findOne({
+            where: {
+                userId: userId,
+            },
+        });
+
+        return user;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to fetch flagged user: " + error.message);
     }
 }
 
@@ -420,4 +467,6 @@ module.exports = {
     resetAlarmStatesForAllServerConfigs,
     resetAlarmLatestMessageIdsForAllServerConfigs,
     resetAlarmMessageChannelIdsForAllServerConfigs,
+    fetchFlaggedUser,
+    createFlaggedUser,
 };
