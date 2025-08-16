@@ -192,6 +192,8 @@ module.exports = {
             });
 
             scanMsg.delete(guildId);
+
+            console.log(await robloxHandler.getDetailedInfoOfUser(userId));
         } catch (error) {
             // Send a meaningful message
             const errorEmbed = new EmbedBuilder()
