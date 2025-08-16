@@ -127,7 +127,7 @@ async function getDetailedInfoOfUser(userId) {
  * @returns {number} The age of the account in years
  */
 async function getAccountAgeOfUser(userId) {
-    const data = getDetailedInfoOfUser(userId);
+    const data = await getDetailedInfoOfUser(userId);
 
     const accountDate = new Date(data.created);
     const currentDate = new Date();

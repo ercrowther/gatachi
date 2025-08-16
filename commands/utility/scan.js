@@ -163,6 +163,14 @@ module.exports = {
             }
 
             const headshotUrl = await robloxHandler.getHeadshot(userId);
+            const accountAge = await robloxHandler.getAccountAgeOfUser(userId);
+
+            // Calculate account violations
+            let totalViolations = foundUserFriends.size;
+            if (accountAge < 1) {
+                totalViolations += 1;
+            }
+
             const infoEmbed = new EmbedBuilder()
                 .setColor("#10b91f")
                 .setTitle("**SCAN COMPLETE!**")
@@ -174,13 +182,17 @@ module.exports = {
                 .addFields(
                     {
                         name: "Total Violations",
-                        value: foundUserFriends.size.toString(),
+                        value: totalViolations.toString(),
                     },
                     {
                         name: "Flagged Friends",
                         value: buildStringFromSetOfFlaggedUsers(
                             foundUserFriends
                         ),
+                    },
+                    {
+                        name: "Account Age",
+                        value: accountAge < 1 ? "Young" : "Acceptable",
                     }
                 )
                 .setFooter({
