@@ -121,6 +121,22 @@ async function getDetailedInfoOfUser(userId) {
 }
 
 /**
+ * Get the age of a ROBLOX account in years
+ *
+ * @param {number} userId - The user id for a ROBLOX profile
+ * @returns {number} The age of the account in years
+ */
+async function getAccountAgeOfUser(userId) {
+    const data = getDetailedInfoOfUser(userId);
+
+    const accountDate = new Date(data.created);
+    const currentDate = new Date();
+    const diffMs = currentDate - accountDate;
+
+    return diffMs / (1000 * 60 * 60 * 24 * 365.25);
+}
+
+/**
  * Pause execution for a specified amount of miliseconds
  *
  * This function returns a promise after a certain amnount of miliseconds, letting the caller of
@@ -138,4 +154,5 @@ module.exports = {
     getIDByUsername,
     getHeadshot,
     getDetailedInfoOfUser,
+    getAccountAgeOfUser,
 };
