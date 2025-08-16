@@ -170,10 +170,18 @@ module.exports = {
                     "Click the blue text above to go to the user's profile. The information below is a summary of the information gathered from the scan."
                 )
                 .setThumbnail(process.env.SCAN_ICON_URL)
-                .addFields({
-                    name: "Flagged Friends",
-                    value: buildStringFromSetOfFlaggedUsers(foundUserFriends),
-                })
+                .addFields(
+                    {
+                        name: "Total Violations",
+                        value: foundUserFriends.size.toString(),
+                    },
+                    {
+                        name: "Flagged Friends",
+                        value: buildStringFromSetOfFlaggedUsers(
+                            foundUserFriends
+                        ),
+                    }
+                )
                 .setFooter({
                     text: "Scanning helps, but remember: always use your own judgement",
                 });
