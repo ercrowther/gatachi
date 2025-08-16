@@ -83,6 +83,25 @@ async function getIDByUsername(username) {
 }
 
 /**
+ * Get the avatar headshot of a roblox account
+ *
+ * @param {number} userId - The user id for a ROBLOX profile
+ * @returns {string} An image url to an avatar headshot
+ * @throws {Error} Throws an error if fetch fails
+ */
+async function getHeadshot(userId) {
+    const data = fetch(
+        `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`
+    );
+
+    if (data.status != 200) {
+        throw new Error("Failed to fetch avatar headshot for: " + userId);
+    }
+
+    return data.imageUrl;
+}
+
+/**
  * Pause execution for a specified amount of miliseconds
  *
  * This function returns a promise after a certain amnount of miliseconds, letting the caller of
@@ -98,4 +117,5 @@ function sleep(ms) {
 module.exports = {
     returnUsersFriends,
     getIDByUsername,
+    getHeadshot,
 };
