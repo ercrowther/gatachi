@@ -98,7 +98,7 @@ async function getHeadshot(userId) {
     if (response.status != 200) {
         throw new Error("Failed to fetch avatar headshot for: " + userId);
     }
-    
+
     return data.data[0].imageUrl;
 }
 
