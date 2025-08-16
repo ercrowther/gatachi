@@ -90,15 +90,16 @@ async function getIDByUsername(username) {
  * @throws {Error} Throws an error if fetch fails
  */
 async function getHeadshot(userId) {
-    const data = await fetch(
+    const response = await fetch(
         `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`
     );
+    const data = await response.json();
 
-    if (data.status != 200) {
+    if (response.status != 200) {
         throw new Error("Failed to fetch avatar headshot for: " + userId);
     }
-
-    return data.imageUrl;
+    
+    return data.data[0].imageUrl;
 }
 
 /**
