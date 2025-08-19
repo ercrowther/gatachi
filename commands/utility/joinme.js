@@ -9,6 +9,7 @@ module.exports = {
         ),
     async execute(interaction) {
         const memberNick = interaction.member.nickname;
+        const memberUser = interaction.user.username;
         let accountFound = false;
         let memberId = null;
 
@@ -30,9 +31,13 @@ module.exports = {
 
                 const successEmbed = new EmbedBuilder()
                     .setTitle(
-                        `CLICK THIS TO GO TO ${interaction.user.username.toUpperCase()}'s PROFILE`
+                        `CLICK THIS TO GO TO ${memberUser.toUpperCase()}'S PROFILE`
                     )
                     .setURL(`https://www.roblox.com/users/${memberId}/profile`)
+                    .setColor("#10b91f")
+                    .setDescription(
+                        `Click the blue text above to go to ${memberUser}'s ROBLOX profile`
+                    )
                     .setThumbnail(userIcon);
 
                 await interaction.reply({
