@@ -48,7 +48,7 @@ module.exports = {
             }
 
             // If execution is here, the username was not extracted/found
-            const failEmbed = new EmbedBuilder().setTitle(
+            const failEmbed = new EmbedBuilder().setDescription(
                 `Failed to find ROBLOX profile for ${interaction.user.username}.`
             );
 
