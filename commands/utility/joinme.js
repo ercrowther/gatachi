@@ -30,7 +30,7 @@ module.exports = {
 
                 const successEmbed = new EmbedBuilder()
                     .setTitle(
-                        `CLICK THIS TO GO TO ${interaction.user.username}'s PROFILE`
+                        `CLICK THIS TO GO TO ${interaction.user.username.toUpperCase()}'s PROFILE`
                     )
                     .setURL(`https://www.roblox.com/users/${memberId}/profile`)
                     .setThumbnail(userIcon);
