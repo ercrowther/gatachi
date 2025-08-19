@@ -7,7 +7,52 @@ module.exports = {
         .setDescription(
             "Send a link to your roblox account so people can join quickly"
         ),
-    async execute(interaction) {},
+    async execute(interaction) {
+        const memberNick = interaction.member.nickname;
+        let accountFound = false;
+        let memberId = null;
+
+        // Attempt to get the ROBLOX account id of the user by the second part of their nickname
+        memberId = await robloxHandler
+            .getIDByUsername(extractUsername(memberNick))
+            .catch(() => null);
+
+        // If username extraction failed, fallback to the preferred nickname
+        if (!memberId) {
+            memberId = await robloxHandler
+                .getIDByUsername(extractNick(memberNick))
+                .catch(() => null);
+        }
+
+        try {
+            if (memberId) {
+                const userIcon = await robloxHandler.getHeadshot(memberId);
+
+                const successEmbed = new EmbedBuilder()
+                    .setTitle(
+                        `CLICK THIS TO GO TO ${interaction.user.username}'s PROFILE`
+                    )
+                    .setURL(`https://www.roblox.com/users/${memberId}/profile`)
+                    .setThumbnail(userIcon);
+
+                await interaction.reply({
+                    embeds: [successEmbed],
+                });
+
+                return;
+            }
+        } catch (error) {
+            // Send a meaningful message
+            const errorEmbed = new EmbedBuilder()
+                .setDescription(`**ERROR** - ${error}`)
+                .setColor("#fc0303");
+            await interaction.reply({
+                embeds: [errorEmbed],
+            });
+
+            return;
+        }
+    },
 };
 
 /**
