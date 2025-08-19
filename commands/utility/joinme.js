@@ -10,7 +10,6 @@ module.exports = {
     async execute(interaction) {
         const memberNick = interaction.member.nickname;
         const memberUser = interaction.user.username;
-        let accountFound = false;
         let memberId = null;
 
         // Attempt 1: Roblox username from the paranthesis in the nickname
@@ -28,7 +27,7 @@ module.exports = {
         // Attempt 3: Whole nickname of guild member
         if (!memberId && memberNick) {
             memberId = await robloxHandler
-                .getIDByUsername(extractNick(memberNick))
+                .getIDByUsername(memberNick)
                 .catch(() => null);
         }
 
