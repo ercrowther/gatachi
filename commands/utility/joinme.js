@@ -48,9 +48,11 @@ module.exports = {
             }
 
             // If execution is here, the username was not extracted/found
-            const failEmbed = new EmbedBuilder().setDescription(
-                `Failed to find ROBLOX profile for ${interaction.user.username}.`
-            );
+            const failEmbed = new EmbedBuilder()
+                .setDescription(
+                    `Failed to find ROBLOX profile for ${interaction.user.username}`
+                )
+                .setColor("#10b91f");
 
             await interaction.reply({
                 embeds: [failEmbed],
