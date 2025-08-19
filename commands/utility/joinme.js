@@ -13,13 +13,20 @@ module.exports = {
         let accountFound = false;
         let memberId = null;
 
-        // Attempt to get the ROBLOX account id of the user by the second part of their nickname
+        // Attempt 1: Roblox username from the paranthesis in the nickname
         memberId = await robloxHandler
             .getIDByUsername(extractUsername(memberNick))
             .catch(() => null);
 
-        // If username extraction failed, fallback to the preferred nickname
+        // Attempt 2: The preferred name of the guild member outside of paranthesis
         if (!memberId) {
+            memberId = await robloxHandler
+                .getIDByUsername(extractNick(memberNick))
+                .catch(() => null);
+        }
+
+        // Attempt 3: Whole nickname of guild member
+        if (!memberId && memberNick) {
             memberId = await robloxHandler
                 .getIDByUsername(extractNick(memberNick))
                 .catch(() => null);
