@@ -37,7 +37,7 @@ async function buildPages() {
         currentPageInfo += `${users.name}\n`;
 
         // If page is full or it’s the last item, add current info into the page
-        if ((i + 1) % namesPerPage === 0 || i === items.length - 1) {
+        if ((i + 1) % namesPerPage === 0 || i === users.length - 1) {
             pages.push(new EmbedBuilder().setDescription(currentPageInfo));
 
             // Flush the current page info
