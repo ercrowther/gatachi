@@ -2,7 +2,6 @@ const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    EmbedBuilder,
 } = require("discord.js");
 
 /**
@@ -51,6 +50,17 @@ async function paginate(interaction, pages) {
                 prevButton.setDisabled(true);
             } else {
                 prevButton.setDisabled(false);
+            }
+        } else if (i.customId == "next") {
+            // Only increase to the length of the pages array
+            if (index < pages.length - 1) {
+                index += 1;
+            }
+
+            if (index == pages.length - 1) {
+                nextButton.setDisabled(true);
+            } else {
+                nextButton.setDisabled(false);
             }
         }
 
