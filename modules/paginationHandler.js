@@ -26,7 +26,7 @@ async function paginate(interaction, pages) {
 
     // Send the current page using the current index within the array of embed pages
     const currentPage = await interaction.reply({
-        embeds: pages[index],
+        embeds: [pages[index]],
         components: [row],
         withRespone: true,
     });
@@ -63,7 +63,7 @@ async function paginate(interaction, pages) {
         }
 
         await i.update({
-            embeds: pages[index],
+            embeds: [pages[index]],
             components: [row],
         });
     });
