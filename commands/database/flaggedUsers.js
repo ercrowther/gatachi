@@ -6,7 +6,7 @@ const {
 const crudHandler = require("../../modules/database/crudHandler");
 const paginationHandler = require("../../modules/paginationHandler");
 
-const namesPerPage = 10;
+const namesPerPage = 15;
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -30,6 +30,7 @@ module.exports = {
 async function buildPages() {
     // Hold the names of each FlaggedUser until it is time to add it to a page
     let currentPageInfo = "";
+    let pageCount = 1;
     const users = await crudHandler.fetchAllFlaggedUsers();
     const pages = [];
 
@@ -38,7 +39,18 @@ async function buildPages() {
 
         // If page is full or it’s the last item, add current info into the page
         if ((i + 1) % namesPerPage === 0 || i === users.length - 1) {
-            pages.push(new EmbedBuilder().setDescription(currentPageInfo));
+            pages.push(
+                new EmbedBuilder()
+                    .setDescription(currentPageInfo)
+                    .setColor("#10b91f")
+                    .setTitle("Flagged Users")
+                    .setFooter({
+                        text: `Page ${pageCount} of ${Math.ceil(
+                            (users.length - 1) / namesPerPage
+                        )}`,
+                    })
+            );
+            pageCount += 1;
 
             // Flush the current page info
             currentPageInfo = "";
