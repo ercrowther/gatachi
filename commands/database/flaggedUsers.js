@@ -34,7 +34,7 @@ async function buildPages() {
     const pages = [];
 
     for (let i = 0; i < users.length; i++) {
-        currentPageInfo += `${users.name}\n`;
+        currentPageInfo += `${users.dataValues.name}\n`;
 
         // If page is full or it’s the last item, add current info into the page
         if ((i + 1) % namesPerPage === 0 || i === users.length - 1) {
