@@ -17,6 +17,7 @@ async function paginate(interaction, pages) {
     const prevButton = new ButtonBuilder()
         .setCustomId("prev")
         .setLabel("◀️")
+        .setDisabled(true)
         .setStyle(ButtonStyle.Primary);
     const nextButton = new ButtonBuilder()
         .setCustomId("next")
@@ -28,13 +29,14 @@ async function paginate(interaction, pages) {
     const currentPage = await interaction.reply({
         embeds: [pages[index]],
         components: [row],
-        withRespone: true,
+        withResponse: true,
     });
 
-    const collector = currentPage.createMessageComponentCollector({
-        filter: (i) => i.user.id === interaction.user.id,
-        time: msTimeout,
-    });
+    const collector =
+        currentPage.resource.message.createMessageComponentCollector({
+            filter: (i) => i.user.id === interaction.user.id,
+            time: msTimeout,
+        });
 
     collector.on("collect", async (i) => {
         if (i.customId == "prev") {
@@ -42,35 +44,33 @@ async function paginate(interaction, pages) {
             if (index > 0) {
                 index -= 1;
             }
-
-            // If index is now zero, disable the prevButton
-            if (index == 0) {
-                prevButton.setDisabled(true);
-            } else {
-                prevButton.setDisabled(false);
-            }
         } else if (i.customId == "next") {
             // Only increase to the length of the pages array
             if (index < pages.length - 1) {
                 index += 1;
             }
-
-            if (index == pages.length - 1) {
-                nextButton.setDisabled(true);
-            } else {
-                nextButton.setDisabled(false);
-            }
         }
 
-        await i.update({
-            embeds: [pages[index]],
-            components: [row],
-        });
+        prevButton.setDisabled(index === 0);
+        nextButton.setDisabled(index === pages.length - 1);
+
+        try {
+            await i.update({ embeds: [pages[index]], components: [row] });
+        } catch (err) {
+            // Rethrow errors that arent expected. Code 10008 is expected and not a concern
+            if (err.code !== 10008) throw err;
+        }
     });
 
-    collector.on("end", () => {
+    collector.on("end", async () => {
         row.components.forEach((btn) => btn.setDisabled(true));
-        currentPage.edit({ components: [row] });
+
+        try {
+            await currentPage.resource.message.edit({ components: [row] });
+        } catch (err) {
+            // Rethrow errors that arent expected. Code 10008 is expected and not a concern
+            if (err.code !== 10008) throw err;
+        }
     });
 }
 
