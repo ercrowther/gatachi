@@ -451,6 +451,24 @@ async function fetchFlaggedUser(userId) {
     }
 }
 
+/**
+ * Fetch all FlaggedUser records in the database
+ *
+ * @returns {Promise<Object[]|null>} An array of FlaggedUser objects, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchAllFlaggedUsers() {
+    try {
+        // Fetch the FlaggedUser by a roblox user id
+        const user = await FlaggedUserModel.findAll();
+
+        return user;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to fetch all flagged users: " + error.message);
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfig,
@@ -469,4 +487,5 @@ module.exports = {
     resetAlarmMessageChannelIdsForAllServerConfigs,
     fetchFlaggedUser,
     createFlaggedUser,
+    fetchAllFlaggedUsers,
 };
