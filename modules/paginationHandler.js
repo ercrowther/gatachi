@@ -1,8 +1,6 @@
-const {
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-} = require("discord.js");
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+
+const msTimeout = 180000;
 
 /**
  * Creates a paginated embed message with buttons to switch between pages
@@ -35,7 +33,7 @@ async function paginate(interaction, pages) {
 
     const collector = currentPage.createMessageComponentCollector({
         filter: (i) => i.user.id === interaction.user.id,
-        time: 900000,
+        time: msTimeout,
     });
 
     collector.on("collect", async (i) => {
