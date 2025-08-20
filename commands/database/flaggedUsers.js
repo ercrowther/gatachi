@@ -16,21 +16,7 @@ module.exports = {
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
-        // create 3 sample pages
-        const pages = [
-            new EmbedBuilder()
-                .setTitle("Page 1")
-                .setDescription("This is the first page")
-                .setColor("Blue"),
-            new EmbedBuilder()
-                .setTitle("Page 2")
-                .setDescription("This is the second page")
-                .setColor("Green"),
-            new EmbedBuilder()
-                .setTitle("Page 3")
-                .setDescription("This is the third page")
-                .setColor("Red"),
-        ];
+        const pages = await buildPages();
 
         await paginationHandler.paginate(interaction, pages);
     },
@@ -51,7 +37,7 @@ async function buildPages() {
         currentPageInfo += `${users.name}\n`;
 
         // If page is full or it’s the last item, add current info into the page
-        if ((i + 1) % pageSize === 0 || i === items.length - 1) {
+        if ((i + 1) % namesPerPage === 0 || i === items.length - 1) {
             pages.push(new EmbedBuilder().setDescription(currentPageInfo));
 
             // Flush the current page info
