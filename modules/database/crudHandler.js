@@ -509,18 +509,24 @@ async function fetchAllFlaggedUsers() {
 /**
  * Fetch all the warnings for a guild by order of most recent
  *
- * @param {number} guildId
+ * @param {number} guildId - The guild id to get the warnings from
+ * @param {string} orderBy - Any valid Warning field, such as severity, date, etc
+ * @param {string} direction - The order to sort by, either "DESC" or "ASC"
  * @returns {Promise<Object[]|null>} An array of Warning objects, otherwise null
  * @throws {Error} Throws an error if the fetch fails
  */
-async function fetchAllWarnings(guildId) {
+async function fetchAllWarnings(
+    guildId,
+    orderBy = "severity",
+    direction = "DESC"
+) {
     try {
         // Fetch the Warning by guild id
         const warn = await WarningModel.findAll({
             where: {
                 guildId: guildId,
             },
-            order: [["date", "DESC"]],
+            order: [[orderBy, direction]],
         });
 
         return warn;
