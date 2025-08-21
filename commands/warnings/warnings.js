@@ -55,6 +55,17 @@ module.exports = {
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
+        // Map choice value's to the columns in warnings
+        const sortMap = {
+            sort_date: "date",
+            sort_severity: "severity",
+        };
+
+        const orderMap = {
+            order_asc: "ASC",
+            order_desc: "DESC",
+        };
+
         const guildId = interaction.guildId;
         // Parse options
         const target = interaction.options.getUser("user");
@@ -63,13 +74,16 @@ module.exports = {
             interaction.options.getString("sort_by") ?? undefined;
         const orderOption =
             interaction.options.getString("order_by") ?? undefined;
+        // Translate options to db columns
+        const sortColumn = sortOption ? sortMap[sortOption] : undefined;
+        const orderColumn = orderOption ? orderMap[orderOption] : undefined;
 
         // Show user specific warnings
         if (targetId) {
             const userWarns = await crudHandler.fetchWarnings(
                 guildId,
-                sortOption,
-                orderOption,
+                sortColumn,
+                orderColumn,
                 targetId
             );
 
@@ -79,6 +93,8 @@ module.exports = {
 
             return;
         }
+
+        // Show warning's for everyone
     },
 };
 
@@ -122,7 +138,7 @@ function buildPages(warnings, target) {
                     )
                     .setFooter({
                         text: `Page ${pageCount} of ${Math.ceil(
-                            (warnings.length) / warnsPerPage
+                            warnings.length / warnsPerPage
                         )}`,
                     })
             );
