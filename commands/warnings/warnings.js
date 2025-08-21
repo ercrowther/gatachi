@@ -94,7 +94,6 @@ function buildPages(warnings, target) {
     let currentPageInfo = "";
     let pageCount = 1;
     const pages = [];
-    console.log(warnings);
 
     for (let i = 0; i < warnings.length; i++) {
         // Parse a few datas from the element
