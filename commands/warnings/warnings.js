@@ -125,7 +125,7 @@ function buildPages(warnings, target) {
         }
         currentPageInfo += ` | Severity: \`${
             warnings[i].dataValues.severity
-        }\`\n${reason} - \`${date.toString()}\`\n\n`;
+        }\`\n${reason}  -  \`${date.toString()}\`\n\n`;
 
         // If page is full or it’s the last item, add current info into the page
         if ((i + 1) % warnsPerPage === 0 || i === warnings.length - 1) {
