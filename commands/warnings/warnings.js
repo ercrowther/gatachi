@@ -152,7 +152,6 @@ async function buildPages(warnings, target, interaction) {
         currentPageInfo += `ID: \`${warnings[i].dataValues.warningId}\``;
 
         // Optionally add the username the warning is for if no specific user is mentioned
-        // TODO: Fix incorrect fetching of user??
         if (!target) {
             let username = "Unknown user";
 

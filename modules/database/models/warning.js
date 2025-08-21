@@ -24,11 +24,11 @@ const Warning = sequelize.define(
             allowNull: false,
         },
         userId: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             allowNull: false,
         },
         guildId: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             allowNull: false,
         },
         reasoning: {
