@@ -47,7 +47,7 @@ function buildPages(users) {
                     .setTitle("Flagged Users")
                     .setFooter({
                         text: `Page ${pageCount} of ${Math.ceil(
-                            (users.length - 1) / namesPerPage
+                            (users.length) / namesPerPage
                         )}`,
                     })
             );

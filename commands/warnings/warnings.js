@@ -122,7 +122,7 @@ function buildPages(warnings, target) {
                     )
                     .setFooter({
                         text: `Page ${pageCount} of ${Math.ceil(
-                            (warnings.length - 1) / warnsPerPage
+                            (warnings.length) / warnsPerPage
                         )}`,
                     })
             );
