@@ -60,7 +60,7 @@ async function createFlaggedUser(userId, username) {
 async function createWarning(userId, guildId, reasoning, severity) {
     try {
         // Find the highest warningId
-        const lastWarning = await Warning.findOne({
+        const lastWarning = await WarningModel.findOne({
             where: { guildId, userId },
             order: [["warningId", "DESC"]],
         });
