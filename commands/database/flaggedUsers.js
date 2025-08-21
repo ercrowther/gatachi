@@ -26,6 +26,7 @@ module.exports = {
 /**
  * Build an array of embeds that hold a specified amount of names. Each element acts like a page
  *
+ * @param {Object[]} users - An array of FlaggedUser objects
  * @returns {EmbedBuilder[]} An array of embeds that act as pages
  */
 function buildPages(users) {
