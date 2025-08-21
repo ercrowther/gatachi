@@ -31,6 +31,9 @@ module.exports = {
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
-        console.log(interaction.guildId);
+        const guildId = interaction.guildId;
+        const target = interaction.options.getUser("user").id;
+        const reason = interaction.options.getString("reason");
+        const severity = interaction.options.getInteger("severity");
     },
 };
