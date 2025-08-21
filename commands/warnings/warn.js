@@ -76,10 +76,10 @@ module.exports = {
             // Build a follow up message if user has exceeded the max for warnings, severity or both
             let followUpMessage = "";
             const totalSeverity = getTotalSeverity(userWarnings);
-            if (totalSeverity > severityMax) {
+            if (totalSeverity >= severityMax) {
                 followUpMessage += `${memberName} has a high severity total: \`${totalSeverity}\`\n`;
             }
-            if (userWarnings.length > warningMax) {
+            if (userWarnings.length >= warningMax) {
                 followUpMessage += `${memberName} has many warnings! They now have: \`${userWarnings.length}\``;
             }
 
