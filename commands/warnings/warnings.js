@@ -88,6 +88,17 @@ module.exports = {
                     targetId
                 );
 
+                // Guard clause incase the user has no warnings on record
+                if (userWarns.length == 0) {
+                    const emptyEmbed = new EmbedBuilder()
+                        .setDescription(`${target.username} has no warnings`)
+                        .setColor("#10b91f")
+                        .setTitle(`${target.username}'s Warnings`);
+
+                    await interaction.reply({ embeds: [emptyEmbed] });
+                    return;
+                }
+
                 // Send a paginated embed
                 const userWarnPages = await buildPages(
                     userWarns,
@@ -105,6 +116,17 @@ module.exports = {
                 sortColumn,
                 orderColumn
             );
+
+            // Guard clause incase no warnings exist at all
+            if (allWarns.length == 0) {
+                const emptyEmbed = new EmbedBuilder()
+                    .setDescription("Nobody has any warnings!")
+                    .setColor("#10b91f")
+                    .setTitle("Warnings");
+
+                await interaction.reply({ embeds: [emptyEmbed] });
+                return;
+            }
 
             // Send a paginated embed
             const allWarnPages = await buildPages(
