@@ -1,3 +1,4 @@
+require("dotenv").config();
 const {
     SlashCommandBuilder,
     EmbedBuilder,
@@ -9,7 +10,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("warn")
         .setDescription("ADMIN ONLY. Give out a warning to a member")
-        .addMentionableOption((option) =>
+        .addUserOption((option) =>
             option
                 .setName("user")
                 .setDescription("The member to warn")
@@ -34,6 +35,42 @@ module.exports = {
         const guildId = interaction.guildId;
         const target = interaction.options.getUser("user").id;
         const reason = interaction.options.getString("reason");
-        const severity = interaction.options.getInteger("severity");
+        const severity = interaction.options.getInteger("severity") ?? 1;
+        const memberName = interaction.options.getUser("user").username;
+
+        try {
+            await crudHandler.createWarning(target, guildId, reason, severity);
+
+            const successEmbed = new EmbedBuilder()
+                .setTitle(`WARNED ${memberName.toUpperCase()}`)
+                .setColor("#10b91f")
+                .addFields(
+                    {
+                        name: "Reason",
+                        value: reason ?? "None provided",
+                        inline: true,
+                    },
+                    {
+                        name: "Severity",
+                        value: severity?.toString(),
+                        inline: true,
+                    }
+                )
+                .setTimestamp();
+
+            await interaction.reply({
+                embeds: [successEmbed],
+            });
+        } catch (error) {
+            // Send a meaningful message
+            const errorEmbed = new EmbedBuilder()
+                .setDescription(`**ERROR** - ${error}`)
+                .setColor("#fc0303");
+            await interaction.reply({
+                embeds: [errorEmbed],
+            });
+
+            return;
+        }
     },
 };
