@@ -78,23 +78,52 @@ module.exports = {
         const sortColumn = sortOption ? sortMap[sortOption] : undefined;
         const orderColumn = orderOption ? orderMap[orderOption] : undefined;
 
-        // Show user specific warnings
-        if (targetId) {
-            const userWarns = await crudHandler.fetchWarnings(
+        try {
+            // Show user specific warnings
+            if (targetId) {
+                const userWarns = await crudHandler.fetchWarnings(
+                    guildId,
+                    sortColumn,
+                    orderColumn,
+                    targetId
+                );
+
+                // Send a paginated embed
+                const userWarnPages = await buildPages(
+                    userWarns,
+                    target,
+                    interaction
+                );
+                await paginationHandler.paginate(interaction, userWarnPages);
+
+                return;
+            }
+
+            // Show warning's for everyone
+            const allWarns = await crudHandler.fetchWarnings(
                 guildId,
                 sortColumn,
-                orderColumn,
-                targetId
+                orderColumn
             );
 
             // Send a paginated embed
-            const userWarnPages = buildPages(userWarns, target);
-            await paginationHandler.paginate(interaction, userWarnPages);
+            const allWarnPages = await buildPages(
+                allWarns,
+                undefined,
+                interaction
+            );
+            await paginationHandler.paginate(interaction, allWarnPages);
+        } catch (error) {
+            // Send a meaningful message
+            const errorEmbed = new EmbedBuilder()
+                .setDescription(`**ERROR** - ${error}`)
+                .setColor("#fc0303");
+            await interaction.reply({
+                embeds: [errorEmbed],
+            });
 
             return;
         }
-
-        // Show warning's for everyone
     },
 };
 
@@ -103,9 +132,10 @@ module.exports = {
  *
  * @param {Object[]} warnings - An array of Warning objects
  * @param {GuildMember} targetId - An optional parameter for a guild member
+ * @param {ChatInputCommandInteraction} interaction - The interaction that started the command
  * @returns {EmbedBuilder[]} An array of embeds that act as pages
  */
-function buildPages(warnings, target) {
+async function buildPages(warnings, target, interaction) {
     // Hold the warnings until it is time to add it to a page
     let currentPageInfo = "";
     let pageCount = 1;
@@ -118,11 +148,25 @@ function buildPages(warnings, target) {
             : "No reason provided";
         const date = new Date(warnings[i].dataValues.date);
 
-        // Add one line of warning info
+        // Add first half of warning info
         currentPageInfo += `ID: \`${warnings[i].dataValues.warningId}\``;
+
+        // Optionally add the username the warning is for if no specific user is mentioned
+        // TODO: Fix incorrect fetching of user??
         if (!target) {
-            currentPageInfo += ` | ${target.username}`;
+            let username = "Unknown user";
+
+            const user = await interaction.client.users
+                .fetch(String(warnings[i].dataValues.userId))
+                .catch(() => null);
+            if (user) {
+                username = user.username;
+            }
+
+            currentPageInfo += ` | ${username}`;
         }
+
+        // Final half of warning info
         currentPageInfo += ` | Severity: \`${
             warnings[i].dataValues.severity
         }\`\n${reason}  -  \`${date.toString()}\`\n\n`;
