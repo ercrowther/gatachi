@@ -155,9 +155,13 @@ async function buildPages(warnings, target, interaction) {
         if (!target) {
             let username = "Unknown user";
 
-            const user = await interaction.client.users
-                .fetch(String(warnings[i].dataValues.userId))
-                .catch(() => null);
+            const user =
+                (await interaction.client.users
+                    .fetch(String(warnings[i].dataValues.userId))
+                    .catch(() => null)) ||
+                (await interaction.client.users
+                    .fetch(String(warnings[i].dataValues.userId))
+                    .catch(() => null));
             if (user) {
                 username = user.username;
             }
