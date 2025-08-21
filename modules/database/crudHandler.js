@@ -507,25 +507,31 @@ async function fetchAllFlaggedUsers() {
 }
 
 /**
- * Fetch all the warnings for a guild by order of most recent
+ * Fetch warnings for a guild by any order, direction, and optionally for a specific user
  *
  * @param {number} guildId - The guild id to get the warnings from
  * @param {string} orderBy - Any valid Warning field, such as severity, date, etc
  * @param {string} direction - The order to sort by, either "DESC" or "ASC"
+ * @param {number} userId - The user id to get warnings for. Optional, leave null to get all warnings for the guild
  * @returns {Promise<Object[]|null>} An array of Warning objects, otherwise null
  * @throws {Error} Throws an error if the fetch fails
  */
-async function fetchAllWarnings(
+async function fetchWarnings(
     guildId,
     orderBy = "severity",
-    direction = "DESC"
+    direction = "DESC",
+    userId = null
 ) {
     try {
+        // Build the where clause based on if userId is provided or not
+        const whereClause = { guildId };
+        if (userId !== null) {
+            whereClause.userId = userId;
+        }
+
         // Fetch the Warning by guild id
         const warn = await WarningModel.findAll({
-            where: {
-                guildId: guildId,
-            },
+            where: whereClause,
             order: [[orderBy, direction]],
         });
 
@@ -556,5 +562,5 @@ module.exports = {
     createFlaggedUser,
     fetchAllFlaggedUsers,
     createWarning,
-    fetchAllWarnings,
+    fetchWarnings,
 };
