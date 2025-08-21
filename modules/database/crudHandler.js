@@ -54,6 +54,8 @@ async function createFlaggedUser(userId, username) {
  * @param {number} guildId - The guild id where the warning is given
  * @param {string} reasoning - The reasoning for the warning
  * @param {number} severity - A number between 1 and 5 inclusive
+ * @returns {Promise<Object|null} A promise resolving to the instance created, otherwise null
+ * @throws {Error} Throws an error if the creation fails
  */
 async function createWarning(userId, guildId, reasoning, severity) {
     try {
@@ -504,6 +506,29 @@ async function fetchAllFlaggedUsers() {
     }
 }
 
+/**
+ * Fetch all the warnings for a guild
+ *
+ * @param {number} guildId
+ * @returns {Promise<Object[]|null>} An array of Warning objects, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchAllWarnings(guildId) {
+    try {
+        // Fetch the Warning by guild id
+        const warn = await WarningModel.findAll({
+            where: {
+                guildId: guildId,
+            },
+        });
+
+        return warn;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to fetch all warnings: " + error.message);
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfig,
@@ -524,4 +549,5 @@ module.exports = {
     createFlaggedUser,
     fetchAllFlaggedUsers,
     createWarning,
+    fetchAllWarnings,
 };
