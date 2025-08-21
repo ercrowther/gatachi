@@ -12,7 +12,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("flaggedusers")
         .setDescription(
-            "Get a list of all flagged users that are checked during the scan command"
+            "ADMIN ONLY. Get a list of all flagged users that are checked during the scan command"
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
