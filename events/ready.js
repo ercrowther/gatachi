@@ -11,7 +11,7 @@ module.exports = {
     async execute(client) {
         ServerConfigModel.sync();
         FlaggedUserModel.sync();
-        WarningModel.sync({ force: true });
+        WarningModel.sync();
 
         try {
             // Handle a case where the bot shutdown during an active sticky pin
