@@ -518,7 +518,7 @@ async function fetchAllFlaggedUsers() {
  */
 async function fetchWarnings(
     guildId,
-    orderBy = "severity",
+    orderBy = "date",
     direction = "DESC",
     userId = null
 ) {
