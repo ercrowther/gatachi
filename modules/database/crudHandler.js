@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const ServerConfigModel = require("../database/models/serverConfig");
 const FlaggedUserModel = require("../database/models/flaggedUser");
+const WarningModel = require("../database/models/warning");
 
 /**
  * Create a new ServerConfig for a guild
@@ -43,6 +44,40 @@ async function createFlaggedUser(userId, username) {
     } catch (error) {
         // Throw an error again so the caller can handle it and send an appropriate message
         throw new Error("Failed to create a FlaggedUser: " + error.message);
+    }
+}
+
+/**
+ * Create a new Warning
+ *
+ * @param {number} userId - The user id of the guild member to warn
+ * @param {number} guildId - The guild id where the warning is given
+ * @param {string} reasoning - The reasoning for the warning
+ * @param {number} severity - A number between 1 and 5 inclusive
+ */
+async function createWarning(userId, guildId, reasoning, severity) {
+    try {
+        // Find the highest warningId
+        const lastWarning = await Warning.findOne({
+            where: { guildId, userId },
+            order: [["warningId", "DESC"]],
+        });
+
+        const nextId = lastWarning ? lastWarning.warningId + 1 : 1;
+
+        // Create the Warning
+        const warn = await WarningModel.create({
+            warningId: nextId,
+            userId: userId,
+            guildId: guildId,
+            reasoning: reasoning,
+            severity: severity ? severity : 1,
+        });
+
+        return warn;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to create a Warning: " + error.message);
     }
 }
 
@@ -488,4 +523,5 @@ module.exports = {
     fetchFlaggedUser,
     createFlaggedUser,
     fetchAllFlaggedUsers,
+    createWarning,
 };

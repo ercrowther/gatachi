@@ -42,7 +42,7 @@ const Warning = sequelize.define(
         date: {
             type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Date.now(),
+            defaultValue: () => new Date(),
         },
     },
     {
@@ -51,7 +51,7 @@ const Warning = sequelize.define(
                 fields: ["guildId", "userId"],
             },
             {
-                fields: ["userId, warningId"],
+                fields: ["userId", "warningId"],
             },
             {
                 fields: ["guildId"],
