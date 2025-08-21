@@ -51,5 +51,13 @@ module.exports = {
                 )
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
-    async execute(interaction) {},
+    async execute(interaction) {
+        const guildId = interaction.guildId;
+        // Parse options
+        const targetId = interaction.options.getUser("user")?.id;
+        const sortOption =
+            interaction.options.getString("sort_by") ?? undefined;
+        const orderOption =
+            interaction.options.getString("order_by") ?? undefined;
+    },
 };
