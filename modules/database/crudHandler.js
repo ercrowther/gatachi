@@ -507,7 +507,7 @@ async function fetchAllFlaggedUsers() {
 }
 
 /**
- * Fetch all the warnings for a guild
+ * Fetch all the warnings for a guild by order of most recent
  *
  * @param {number} guildId
  * @returns {Promise<Object[]|null>} An array of Warning objects, otherwise null
@@ -520,6 +520,7 @@ async function fetchAllWarnings(guildId) {
             where: {
                 guildId: guildId,
             },
+            order: [["date", "DESC"]],
         });
 
         return warn;
