@@ -22,6 +22,7 @@ async function paginate(interaction, pages) {
     const nextButton = new ButtonBuilder()
         .setCustomId("next")
         .setLabel("▶️")
+        .setDisabled(pages.length == 1)
         .setStyle(ButtonStyle.Primary);
     const row = new ActionRowBuilder().addComponents(prevButton, nextButton);
 
