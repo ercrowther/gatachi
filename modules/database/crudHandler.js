@@ -84,6 +84,47 @@ async function createWarning(userId, guildId, reasoning, severity) {
 }
 
 /**
+ * Delete a warning for a user
+ *
+ * @param {string} guildId - The guild ID where the warning is
+ * @param {string} userId - The user id for who the warning is for
+ * @param {number} warningId - The warningId (NOT the primary key id)
+ * @returns {Promise<number>} An integer of how many rows were removed
+ * @throws {Error} Throws an error if deletion fails or nothing is deleted
+ */
+async function deleteWarning(guildId, userId, warningId) {
+    // Delete the warning
+    const deletedRows = await WarningModel.destroy({
+        where: { guildId, userId, warningId },
+    });
+
+    // Throw an error if no deletions found, meaning an invalid ID was passed
+    if (deletedRows == 0) {
+        throw new Error(`No warning found with ID ${warningId}. No deletion`);
+    }
+
+    // Get all warnings for this user in the guild that have a warningId greater then whats passed
+    const aboveWarns = await WarningModel.findAll({
+        where: {
+            guildId: guildId,
+            userId: userId,
+            warningId: {
+                [Op.gt]: warningId,
+            },
+        },
+    });
+
+    // Decrement all of the warningId's for the warnings found by 1.
+    if (aboveWarns.length > 0) {
+        for (const warn of aboveWarns) {
+            await warn.update({ warningId: warn.warningId - 1 });
+        }
+    }
+
+    return deletedRows;
+}
+
+/**
  * Updates the alarm role id in the ServerConfig table for the guild specified in arguments
  *
  * @param {string} guildId - the ID of the guild
