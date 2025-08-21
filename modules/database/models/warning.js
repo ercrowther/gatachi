@@ -17,6 +17,7 @@ const Warning = sequelize.define(
             type: Sequelize.INTEGER,
             allowNull: false,
             primaryKey: true,
+            autoIncrement: true,
         },
         warningId: {
             type: Sequelize.INTEGER,
