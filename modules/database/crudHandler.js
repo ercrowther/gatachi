@@ -604,4 +604,5 @@ module.exports = {
     fetchAllFlaggedUsers,
     createWarning,
     fetchWarnings,
+    deleteWarning,
 };
