@@ -12,11 +12,12 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("flaggedusers")
         .setDescription(
-            "Get a list of all flagged users that are checked during the scan command"
+            "ADMIN ONLY. Get a list of all flagged users that are checked during the scan command"
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
-        const pages = await buildPages();
+        const users = await crudHandler.fetchAllFlaggedUsers();
+        const pages = await buildPages(users);
 
         await paginationHandler.paginate(interaction, pages);
     },
@@ -25,13 +26,13 @@ module.exports = {
 /**
  * Build an array of embeds that hold a specified amount of names. Each element acts like a page
  *
+ * @param {Object[]} users - An array of FlaggedUser objects
  * @returns {EmbedBuilder[]} An array of embeds that act as pages
  */
-async function buildPages() {
+function buildPages(users) {
     // Hold the names of each FlaggedUser until it is time to add it to a page
     let currentPageInfo = "";
     let pageCount = 1;
-    const users = await crudHandler.fetchAllFlaggedUsers();
     const pages = [];
 
     for (let i = 0; i < users.length; i++) {
@@ -46,7 +47,7 @@ async function buildPages() {
                     .setTitle("Flagged Users")
                     .setFooter({
                         text: `Page ${pageCount} of ${Math.ceil(
-                            (users.length - 1) / namesPerPage
+                            (users.length) / namesPerPage
                         )}`,
                     })
             );

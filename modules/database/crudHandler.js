@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const ServerConfigModel = require("../database/models/serverConfig");
 const FlaggedUserModel = require("../database/models/flaggedUser");
+const WarningModel = require("../database/models/warning");
 
 /**
  * Create a new ServerConfig for a guild
@@ -44,6 +45,83 @@ async function createFlaggedUser(userId, username) {
         // Throw an error again so the caller can handle it and send an appropriate message
         throw new Error("Failed to create a FlaggedUser: " + error.message);
     }
+}
+
+/**
+ * Create a new Warning
+ *
+ * @param {number} userId - The user id of the guild member to warn
+ * @param {number} guildId - The guild id where the warning is given
+ * @param {string} reasoning - The reasoning for the warning
+ * @param {number} severity - A number between 1 and 5 inclusive
+ * @returns {Promise<Object|null} A promise resolving to the instance created, otherwise null
+ * @throws {Error} Throws an error if the creation fails
+ */
+async function createWarning(userId, guildId, reasoning, severity) {
+    try {
+        // Find the highest warningId
+        const lastWarning = await WarningModel.findOne({
+            where: { guildId, userId },
+            order: [["warningId", "DESC"]],
+        });
+
+        const nextId = lastWarning ? lastWarning.warningId + 1 : 1;
+
+        // Create the Warning
+        const warn = await WarningModel.create({
+            warningId: nextId,
+            userId: userId,
+            guildId: guildId,
+            reasoning: reasoning,
+            severity: severity ? severity : 1,
+        });
+
+        return warn;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to create a Warning: " + error.message);
+    }
+}
+
+/**
+ * Delete a warning for a user
+ *
+ * @param {string} guildId - The guild ID where the warning is
+ * @param {string} userId - The user id for who the warning is for
+ * @param {number} warningId - The warningId (NOT the primary key id)
+ * @returns {Promise<number>} An integer of how many rows were removed
+ * @throws {Error} Throws an error if deletion fails or nothing is deleted
+ */
+async function deleteWarning(guildId, userId, warningId) {
+    // Delete the warning
+    const deletedRows = await WarningModel.destroy({
+        where: { guildId, userId, warningId },
+    });
+
+    // Throw an error if no deletions found, meaning an invalid ID was passed
+    if (deletedRows == 0) {
+        throw new Error(`No warning found with ID ${warningId}. No deletion`);
+    }
+
+    // Get all warnings for this user in the guild that have a warningId greater then whats passed
+    const aboveWarns = await WarningModel.findAll({
+        where: {
+            guildId: guildId,
+            userId: userId,
+            warningId: {
+                [Op.gt]: warningId,
+            },
+        },
+    });
+
+    // Decrement all of the warningId's for the warnings found by 1.
+    if (aboveWarns.length > 0) {
+        for (const warn of aboveWarns) {
+            await warn.update({ warningId: warn.warningId - 1 });
+        }
+    }
+
+    return deletedRows;
 }
 
 /**
@@ -469,6 +547,42 @@ async function fetchAllFlaggedUsers() {
     }
 }
 
+/**
+ * Fetch warnings for a guild by any order, direction, and optionally for a specific user
+ *
+ * @param {number} guildId - The guild id to get the warnings from
+ * @param {string} orderBy - Any valid Warning field, such as severity, date, etc
+ * @param {string} direction - The order to sort by, either "DESC" or "ASC"
+ * @param {number} userId - The user id to get warnings for. Optional, leave null to get all warnings for the guild
+ * @returns {Promise<Object[]|null>} An array of Warning objects, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchWarnings(
+    guildId,
+    orderBy = "date",
+    direction = "DESC",
+    userId = null
+) {
+    try {
+        // Build the where clause based on if userId is provided or not
+        const whereClause = { guildId };
+        if (userId !== null) {
+            whereClause.userId = userId;
+        }
+
+        // Fetch the Warning by guild id
+        const warn = await WarningModel.findAll({
+            where: whereClause,
+            order: [[orderBy, direction]],
+        });
+
+        return warn;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to fetch all warnings: " + error.message);
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfig,
@@ -488,4 +602,7 @@ module.exports = {
     fetchFlaggedUser,
     createFlaggedUser,
     fetchAllFlaggedUsers,
+    createWarning,
+    fetchWarnings,
+    deleteWarning,
 };
