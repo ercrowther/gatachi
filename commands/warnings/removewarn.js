@@ -34,9 +34,11 @@ module.exports = {
         try {
             await crudHandler.deleteWarning(guildId, userId, warningId);
 
-            const successEmbed = new EmbedBuilder().setDescription(
-                `Warning with ID \`${warningId}\` successfully deleted!`
-            );
+            const successEmbed = new EmbedBuilder()
+                .setDescription(
+                    `Warning with ID \`${warningId}\` successfully deleted!`
+                )
+                .setColor("#10b91f");
 
             await interaction.editReply({ embeds: [successEmbed] });
         } catch (error) {
