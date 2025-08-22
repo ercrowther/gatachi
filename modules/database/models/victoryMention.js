@@ -23,4 +23,4 @@ const VictoryMention = sequelize.define("victorymention", {
     },
 });
 
-module.export = VictoryMention;
+module.exports = VictoryMention;
