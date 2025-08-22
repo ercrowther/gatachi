@@ -24,6 +24,8 @@ module.exports = {
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
+        await interaction.deferReply({ ephemeral: true });
+
         // Get necessary data for deletion
         const guildId = interaction.guildId;
         const userId = interaction.options.getUser("user").id;
@@ -36,13 +38,13 @@ module.exports = {
                 `Warning with ID \`${warningId}\` successfully deleted!`
             );
 
-            await interaction.reply({ embeds: [successEmbed] });
+            await interaction.editReply({ embeds: [successEmbed] });
         } catch (error) {
             // Send a meaningful message
             const errorEmbed = new EmbedBuilder()
                 .setDescription(`${error}`)
                 .setColor("#fc0303");
-            await interaction.reply({
+            await interaction.editReply({
                 embeds: [errorEmbed],
             });
 
