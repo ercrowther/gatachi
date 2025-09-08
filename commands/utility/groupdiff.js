@@ -54,9 +54,22 @@ module.exports = {
                 }
             }
 
-            // Create the page
-            const pages = await buildPages(accountGroupDiff);
-            await paginationHandler.paginate(interaction, pages);
+            // Create a paginated response if there is no accounts
+            if (accountGroupDiff.length == 0) {
+                const responseEmbed = new EmbedBuilder()
+                    .setDescription(
+                        `Every discord user is in the ROBLOX group! - This is cause for celeberation!!`
+                    )
+                    .setColor("#10b91f");
+                await interaction.reply({
+                    embeds: [responseEmbed],
+                });
+
+                return;
+            } else {
+                const pages = await buildPages(accountGroupDiff);
+                await paginationHandler.paginate(interaction, pages);
+            }
         } catch (error) {
             // Send a meaningful message
             const errorEmbed = new EmbedBuilder()
