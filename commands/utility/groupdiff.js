@@ -17,6 +17,8 @@ module.exports = {
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
+        await interaction.deferReply({});
+
         const guild = interaction.guild;
         // ROBLOX account names for the group difference
         const accountGroupDiff = [];
@@ -61,7 +63,7 @@ module.exports = {
                         `Every discord user is in the ROBLOX group! - This is cause for celeberation!!`
                     )
                     .setColor("#10b91f");
-                await interaction.reply({
+                await interaction.editReply({
                     embeds: [responseEmbed],
                 });
 
@@ -75,7 +77,7 @@ module.exports = {
             const errorEmbed = new EmbedBuilder()
                 .setDescription(`**ERROR** - ${error}`)
                 .setColor("#fc0303");
-            await interaction.reply({
+            await interaction.editReply({
                 embeds: [errorEmbed],
             });
 
