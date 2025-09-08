@@ -77,9 +77,17 @@ module.exports = {
             const errorEmbed = new EmbedBuilder()
                 .setDescription(`**ERROR** - ${error}`)
                 .setColor("#fc0303");
-            await interaction.editReply({
-                embeds: [errorEmbed],
-            });
+            if (interaction.replied || interaction.deferred) {
+                await interaction.followUp({
+                    embeds: [errorEmbed],
+                    ephemeral: true,
+                });
+            } else {
+                await interaction.reply({
+                    embeds: [errorEmbed],
+                    ephemeral: true,
+                });
+            }
 
             return;
         }
