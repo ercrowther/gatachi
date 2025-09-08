@@ -7,6 +7,7 @@ const sequelize = new Sequelize("database", "user", "password", {
     dialect: "sqlite",
     logging: false,
     storage: "database.sqlite",
+    foreignKeys: true,
 });
 
 module.exports = sequelize;
