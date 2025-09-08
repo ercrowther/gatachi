@@ -76,9 +76,8 @@ async function paginate(interaction, pages) {
         row.components.forEach((btn) => btn.setDisabled(true));
 
         try {
-            await currentPage.resource.message.edit({ components: [row] });
+            await message.edit({ components: [row] });
         } catch (err) {
-            // Rethrow errors that arent expected. Code 10008 is expected and not a concern
             if (err.code !== 10008) throw err;
         }
     });
