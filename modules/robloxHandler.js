@@ -144,16 +144,35 @@ async function getAccountAgeOfUser(userId) {
  * @throws {Error} Throws an error if the fetch fails
  */
 async function getUsersInGroup(groupId) {
-    const response = await fetch(
-        `https://groups.roblox.com/v1/groups/${groupId}/users`
-    );
-    const data = await response.json();
+    const allMembers = [];
+    let url = `https://groups.roblox.com/v1/groups/${groupId}/users?limit=100`;
+    let hasMore = true;
 
-    if (response.status != 200) {
-        throw new Error("Failed to fetch users for group: " + groupId);
+    while (hasMore) {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("Failed to fetch users for group: " + groupId);
+        }
+
+        const data = await response.json();
+
+        if (data.data && Array.isArray(data.data)) {
+            allMembers.push(...data.data);
+        }
+
+        if (data.nextPageCursor) {
+            url = `https://groups.roblox.com/v1/groups/${groupId}/users?limit=100&cursor=${data.nextPageCursor}`;
+            await sleep(1000);
+        } else {
+            hasMore = false;
+        }
     }
 
-    return data;
+    return {
+        data: allMembers,
+        previousPageCursor: null,
+        nextPageCursor: null,
+    };
 }
 
 /**
