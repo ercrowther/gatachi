@@ -7,7 +7,7 @@ const path = require("node:path");
 
 // Create a new client instance
 const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages],
 });
 // Attach a command property to the client
 client.commands = new Collection();
