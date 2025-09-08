@@ -137,6 +137,26 @@ async function getAccountAgeOfUser(userId) {
 }
 
 /**
+ * Get the ROBLOX users that are in a specified group
+ *
+ * @param {string} groupId - The ID of the group to check
+ * @returns {Object} An object containing each member in a group and additional info
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function getUsersInGroup(groupId) {
+    const response = await fetch(
+        `https://groups.roblox.com/v1/groups/${groupId}/users`
+    );
+    const data = await response.json();
+
+    if (response.status != 200) {
+        throw new Error("Failed to fetch user info for: " + userId);
+    }
+
+    return data;
+}
+
+/**
  * Pause execution for a specified amount of miliseconds
  *
  * This function returns a promise after a certain amnount of miliseconds, letting the caller of
@@ -155,4 +175,5 @@ module.exports = {
     getHeadshot,
     getDetailedInfoOfUser,
     getAccountAgeOfUser,
+    getUsersInGroup,
 };
