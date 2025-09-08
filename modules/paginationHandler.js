@@ -27,17 +27,26 @@ async function paginate(interaction, pages) {
     const row = new ActionRowBuilder().addComponents(prevButton, nextButton);
 
     // Send the current page using the current index within the array of embed pages
-    const currentPage = await interaction.reply({
-        embeds: [pages[index]],
-        components: [row],
-        withResponse: true,
-    });
-
-    const collector =
-        currentPage.resource.message.createMessageComponentCollector({
-            filter: (i) => i.user.id === interaction.user.id,
-            time: msTimeout,
+    // Use editReply if interaction was deferred, otherwise reply
+    if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({
+            embeds: [pages[index]],
+            components: [row],
         });
+        message = await interaction.fetchReply();
+    } else {
+        // Interaction not yet replied
+        message = await interaction.reply({
+            embeds: [pages[index]],
+            components: [row],
+            fetchReply: true,
+        });
+    }
+
+    const collector = message.createMessageComponentCollector({
+        filter: (i) => i.user.id === interaction.user.id,
+        time: msTimeout,
+    });
 
     collector.on("collect", async (i) => {
         if (i.customId == "prev") {
