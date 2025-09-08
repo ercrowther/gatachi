@@ -19,6 +19,16 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply({});
 
+        const loadingEmbed = new EmbedBuilder()
+            .setColor("#10b91f")
+            .setDescription(
+                "**Comparing discord and group members...** - Please wait., this may take a few seconds"
+            );
+        await interaction.editReply({
+            embeds: [loadingEmbed],
+            components: [],
+        });
+
         const guild = interaction.guild;
         // ROBLOX account names for the group difference
         const accountGroupDiff = [];
