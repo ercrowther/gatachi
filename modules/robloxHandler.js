@@ -150,7 +150,7 @@ async function getUsersInGroup(groupId) {
     const data = await response.json();
 
     if (response.status != 200) {
-        throw new Error("Failed to fetch user info for: " + userId);
+        throw new Error("Failed to fetch users for group: " + groupId);
     }
 
     return data;
