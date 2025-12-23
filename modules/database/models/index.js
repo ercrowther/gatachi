@@ -1,10 +1,10 @@
-const Victory = require("./victory");
-const VictoryMention = require("./victoryMention");
+const Victories = require("./victories");
+const VictoryMentions = require("./victoryMentions");
 
 // Associations
-Victory.hasMany(VictoryMention, {
+Victories.hasMany(VictoryMentions, {
     foreignKey: "victoryId",
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
 });
-VictoryMention.belongsTo(Victory, { foreignKey: "victoryId" });
+VictoryMentions.belongsTo(Victories, { foreignKey: "victoryId" });

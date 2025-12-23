@@ -10,16 +10,17 @@ const sequelize = require("../db");
  * imageUrl: The image url of a screenshot from the victory, if one exists
  * date: The date of the victory in the format 'yyyy-mm-dd'
  */
-const Victory = sequelize.define("victory", {
+const Victories = sequelize.define("victories", {
     id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true,
     },
-    victoryId: {
+    victoryInternalId: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        unique: true,
     },
     ragequits: {
         type: Sequelize.INTEGER,
@@ -38,7 +39,6 @@ const Victory = sequelize.define("victory", {
     },
     imageUrl: {
         type: Sequelize.STRING,
-        defaultValue: null,
     },
     date: {
         type: Sequelize.DATEONLY,
@@ -46,4 +46,4 @@ const Victory = sequelize.define("victory", {
     },
 });
 
-module.exports = Victory;
+module.exports = Victories;

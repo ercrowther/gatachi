@@ -2,8 +2,8 @@ const { Op } = require("sequelize");
 const ServerConfigModel = require("../database/models/serverConfig");
 const FlaggedUserModel = require("../database/models/flaggedUser");
 const WarningModel = require("../database/models/warning");
-const VictoryModel = require("../database/models/victory");
-const VictoryMentionModel = require("../database/models/victoryMention");
+const VictoriesModel = require("./models/victories");
+const VictoryMentionsModel = require("./models/victoryMentions");
 
 /**
  * Create a new ServerConfig for a guild
