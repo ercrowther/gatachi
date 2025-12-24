@@ -169,7 +169,7 @@ async function deleteVictory(victoryInternalId) {
         },
     });
 
-    // Decrement all of the warningId's for the warnings found by 1
+    // Decrement all of the victoryInternalId's for the victories found by 1
     if (aboveVictories.length > 0) {
         for (const victory of aboveVictories) {
             await victory.update({
