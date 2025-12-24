@@ -223,6 +223,86 @@ async function deleteWarning(guildId, userId, warningId) {
 }
 
 /**
+ * Update a victory. Leave any parameter null to leave it as current data
+ *
+ * @param {number} victoryId - The internal id of the victory to update
+ * @param {number|null} ragequits - How many enemies rage quit
+ * @param {number|null} standdowns - How many enemies stood down
+ * @param {number|null} terminations - How many enemies were banned
+ * @param {string|null} imageUrl - An image url if one exists for the victory
+ * @param {string|null} date - The date of the victory. Format is 'yyyy-mm-dd'
+ * @param {string[]|null} mentions - An array of discord user ids as the victory mentions
+ * @returns {Promise<Object>} - The updated victory instance
+ * @throws {Error} - Throws an error if the update fails/victory id is not valid
+ */
+async function updateVictory(
+    victoryId,
+    ragequits,
+    standdowns,
+    terminations,
+    imageUrl,
+    date,
+    mentions
+) {
+    try {
+        // Get the victory
+        const victory = await VictoriesModel.findOne({
+            where: { victoryInternalId },
+        });
+
+        if (!victory) {
+            throw new Error(
+                `Victory with ID ${victoryInternalId} not found. Update failed`
+            );
+        }
+
+        // Build a table of update data
+        const updateData = {};
+        if (ragequits !== null && ragequits !== undefined) {
+            updateData.ragequits = ragequits;
+        }
+        if (standdowns !== null && standdowns !== undefined) {
+            updateData.standdowns = standdowns;
+        }
+        if (terminations !== null && terminations !== undefined) {
+            updateData.terminations = terminations;
+        }
+        if (imageUrl !== null && imageUrl !== undefined) {
+            updateData.imageUrl = imageUrl;
+        }
+        if (date !== null && date !== undefined) {
+            updateData.date = date;
+        }
+
+        // Update the victory only if any parameters was passed
+        if (Object.keys(updateData).length > 0) {
+            await victory.update(updateData);
+        }
+
+        // Handle the updating of mentions if it was provided
+        if (mentions !== null && mentions !== undefined) {
+            // Wipe existing mentions (its a lot easier this way)
+            await VictoryMentionsModel.destroy({
+                where: { victoryId: victory.id },
+            });
+
+            // Add the new mentions
+            if (mentions.length > 0) {
+                const mentionAdditions = mentions.map((userId) => ({
+                    victoryId: victory.id,
+                    userId,
+                }));
+                await VictoryMentionsModel.bulkCreate(mentionAdditions);
+            }
+        }
+
+        return victory;
+    } catch (error) {
+        throw new Error("Failed to update victory: " + error.message);
+    }
+}
+
+/**
  * Updates the alarm role id in the ServerConfig table for the guild specified in arguments
  *
  * @param {string} guildId - the ID of the guild
@@ -705,4 +785,5 @@ module.exports = {
     deleteVictory,
     fetchWarnings,
     deleteWarning,
+    updateVictory,
 };
