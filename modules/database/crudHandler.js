@@ -761,6 +761,53 @@ async function fetchWarnings(
     }
 }
 
+/**
+ * Fetch victories by any order, direction, and optionally only victories where a user is mentioned
+ *
+ * @param {number|null} victoryId - The internal victory id
+ * @param {string} orderBy - Valid fields: ragequits, standdowns, terminations, date
+ * @param {string} direction - The direction to sort, either "DESC" or "ASC"
+ * @param {number|null} userId - An optional user id. When provided, gets all victories that they are mentioned in
+ * @returns {Promise<Object[]|null>} An array of Victory objects, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchVictories(
+    victoryId,
+    orderBy = "date",
+    direction = "DESC",
+    userId = null
+) {
+    try {
+        // Conditionally build a 'where' clause
+        const whereClause = {};
+        if (victoryId !== null && victoryId !== undefined) {
+            whereClause.victoryInternalId = victoryId;
+        }
+
+        // Conditionally build an include options
+        const includes = [];
+        if (userId !== null && userId !== undefined) {
+            includes.push({
+                model: VictoryMentionsModel,
+                where: { userId: userId },
+                required: true,
+            });
+        }
+
+        // Fetch all victories
+        const victories = await VictoriesModel.findAll({
+            where: whereClause,
+            include: includes,
+            order: [[orderBy, direction]],
+        });
+
+        return victories;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to fetch victories: " + error.message);
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfig,
@@ -786,4 +833,5 @@ module.exports = {
     fetchWarnings,
     deleteWarning,
     updateVictory,
+    fetchVictories,
 };
