@@ -86,6 +86,102 @@ async function createWarning(userId, guildId, reasoning, severity) {
 }
 
 /**
+ * Create a new Victory
+ *
+ * @param {number} ragequits - How many enemies rage quit
+ * @param {number} standdowns - How many enemies stood down
+ * @param {number} terminations - How many enemies were banned
+ * @param {string} imageUrl - An image url if one exists for the victory
+ * @param {string} date - The date of the victory. Format is 'yyyy-mm-dd'
+ * @param {string[]} mentions - An array of discord user ids as the victory mentions
+ * @returns {Promise<Object|null>} - A promise resolving to the instance created, otherwise null
+ * @throws {Error} - Throws an error if the creation fails
+ */
+async function createVictory(
+    ragequits,
+    standdowns,
+    terminations,
+    imageUrl,
+    date,
+    mentions
+) {
+    try {
+        // Find the highest victoryInternalId
+        const lastVictory = await VictoriesModel.findOne({
+            order: [["victoryInternalId", "DESC"]],
+        });
+
+        const nextId = lastVictory ? lastVictory.victoryInternalId + 1 : 1;
+
+        // Create the victory
+        const victory = await VictoriesModel.create({
+            victoryInternalId: nextId,
+            ragequits: ragequits || 0,
+            standdowns: standdowns || 0,
+            terminations: terminations || 0,
+            imageUrl: imageUrl,
+            date: date,
+        });
+
+        // Create the mentions for the victory
+        if (mentions && mentions.length > 0) {
+            for (const userId of mentions) {
+                await VictoryMentionsModel.create({
+                    victoryId: victory.id,
+                    userId: userId,
+                });
+            }
+        }
+
+        return victory;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to create a Victory: " + error.message);
+    }
+}
+
+/**
+ * Delete a victory
+ *
+ * @param {number} victoryInternalId - The internal id of a victory
+ * @returns {Promise<number>} An integer of how many rows were removed
+ * @throws {Error} Throws an error if deletion fails or nothing is deleted
+ */
+async function deleteVictory(victoryInternalId) {
+    // Delete the victory
+    const deletedRows = await VictoriesModel.destroy({
+        where: { victoryInternalId },
+    });
+
+    // Throw an error if no deletions found, meaning an invalid ID was passed
+    if (deletedRows == 0) {
+        throw new Error(
+            `No victory found with ID ${victoryInternalId}. No deletion`
+        );
+    }
+
+    // Get all victories that have a victory id greater then whats passed
+    const aboveVictories = await VictoriesModel.findAll({
+        where: {
+            victoryInternalId: {
+                [Op.gt]: victoryInternalId,
+            },
+        },
+    });
+
+    // Decrement all of the warningId's for the warnings found by 1
+    if (aboveVictories.length > 0) {
+        for (const victory of aboveVictories) {
+            await victory.update({
+                victoryInternalId: victory.victoryInternalId - 1,
+            });
+        }
+    }
+
+    return deletedRows;
+}
+
+/**
  * Delete a warning for a user
  *
  * @param {string} guildId - The guild ID where the warning is
@@ -605,6 +701,8 @@ module.exports = {
     createFlaggedUser,
     fetchAllFlaggedUsers,
     createWarning,
+    createVictory,
+    deleteVictory,
     fetchWarnings,
     deleteWarning,
 };
