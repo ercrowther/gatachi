@@ -247,12 +247,12 @@ async function updateVictory(
     try {
         // Get the victory
         const victory = await VictoriesModel.findOne({
-            where: { victoryInternalId },
+            where: { victoryInternalId: victoryId },
         });
 
         if (!victory) {
             throw new Error(
-                `Victory with ID ${victoryInternalId} not found. Update failed`
+                `Victory with ID ${victoryId} not found. Update failed`
             );
         }
 
