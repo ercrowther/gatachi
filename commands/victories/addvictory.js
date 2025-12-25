@@ -7,6 +7,7 @@ const {
     ActionRowBuilder,
 } = require("discord.js");
 const crudHandler = require("../../modules/database/crudHandler");
+const victoryUtils = require("../../modules/victoryUtils");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -70,7 +71,7 @@ module.exports = {
         try {
             await interaction.deferReply();
 
-            const date = validateAndFormatDate(dateInput);
+            const date = victoryUtils.validateAndFormatDate(dateInput);
 
             // Check if a victory has been added on current date
             const victoryExists = await crudHandler.checkVictoryExistsOnDate(
@@ -143,7 +144,9 @@ module.exports = {
             });
 
             collector.on("collect", async (message) => {
-                const mentions = message.mentions.users.filter(user => user.id !== interaction.client.user.id).map((user) => user.id);
+                const mentions = message.mentions.users
+                    .filter((user) => user.id !== interaction.client.user.id)
+                    .map((user) => user.id);
 
                 // Create victory
                 const victory = await crudHandler.createVictory(
@@ -190,17 +193,3 @@ module.exports = {
         }
     },
 };
-
-function validateAndFormatDate(dateStr) {
-    const date = new Date(dateStr);
-
-    // Check if the date is invalid
-    if (isNaN(date.getTime())) {
-        throw new Error("Invalid date format. Must be yyyy-mm-dd");
-    }
-
-    // Format the date into 'yyyy-mm-dd' format
-    const formattedDate = date.toISOString().split("T")[0];
-
-    return formattedDate;
-}
