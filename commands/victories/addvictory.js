@@ -143,7 +143,7 @@ module.exports = {
             });
 
             collector.on("collect", async (message) => {
-                const mentions = message.mentions.users.map((user) => user.id);
+                const mentions = message.mentions.users.filter(user => user.id !== interaction.client.user.id).map((user) => user.id);
 
                 // Create victory
                 const victory = await crudHandler.createVictory(
