@@ -2,6 +2,9 @@ const {
     SlashCommandBuilder,
     EmbedBuilder,
     PermissionFlagsBits,
+    ButtonBuilder,
+    ButtonStyle,
+    ActionRowBuilder,
 } = require("discord.js");
 const crudHandler = require("../../modules/database/crudHandler");
 
@@ -50,10 +53,72 @@ module.exports = {
         const dateInput = interaction.options.getString("date");
         const imageUrl = interaction.options.getString("image-url");
 
+        // Define buttons
+        const continueButton = new ButtonBuilder()
+            .setCustomId("continue")
+            .setLabel("Continue")
+            .setStyle(ButtonStyle.Success);
+        const cancelButton = new ButtonBuilder()
+            .setCustomId("cancel")
+            .setLabel("Cancel")
+            .setStyle(ButtonStyle.Danger);
+        const row = new ActionRowBuilder().addComponents(
+            continueButton,
+            cancelButton
+        );
+
         try {
             await interaction.deferReply();
 
             const date = validateAndFormatDate(dateInput);
+
+            // Check if a victory has been added on current date
+            const victoryExists = await crudHandler.checkVictoryExistsOnDate(
+                date
+            );
+
+            if (victoryExists) {
+                // Send a confirmation dialog if user really wants to cintinue
+                const confirmEmbed = new EmbedBuilder()
+                    .setTitle("HOLD IT!")
+                    .setDescription(
+                        `A victory has already been saved for **${date}**. Are you sure you want to continue with adding this victory?`
+                    )
+                    .setColor("#ffac32");
+
+                const confirmMessage = await interaction.editReply({
+                    embeds: [confirmEmbed],
+                    components: [row],
+                });
+
+                // Wait for button interaction
+                try {
+                    const confirmation =
+                        await confirmMessage.awaitMessageComponent({
+                            filter: (i) => i.user.id === interaction.user.id,
+                            time: 60000,
+                        });
+
+                    if (confirmation.customId === "cancel") {
+                        confirmMessage.delete();
+
+                        return;
+                    }
+                } catch {
+                    // Timeout
+                    const timeoutEmbed = new EmbedBuilder()
+                        .setDescription(
+                            "Message timeout: No reply received within 60 seconds"
+                        )
+                        .setColor("#ff0000");
+                    await interaction.editReply({
+                        embeds: [timeoutEmbed],
+                        components: [],
+                    });
+
+                    return;
+                }
+            }
 
             // Initial embed that informs command user how to continue
             const processingEmbed = new EmbedBuilder()
@@ -64,6 +129,7 @@ module.exports = {
                 .setColor("#10b91f");
             const processingMessage = await interaction.editReply({
                 embeds: [processingEmbed],
+                components: [],
             });
 
             // Create collector for the reply with mentions

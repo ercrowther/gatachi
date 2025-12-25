@@ -303,6 +303,25 @@ async function updateVictory(
 }
 
 /**
+ * Check if a victory exists on a specific date
+ *
+ * @param {string} date - The date to check in 'yyyy-mm-dd' format
+ * @returns {Promise<boolean>} - True if a victory exists on that date, false otherwise
+ * @throws {Error} - Throws an error if the check fails
+ */
+async function checkVictoryExistsOnDate(date) {
+    try {
+        const victory = await VictoriesModel.findOne({
+            where: { date: date },
+        });
+
+        return victory !== null;
+    } catch (error) {
+        throw new Error("Failed to check victory on date: " + error.message);
+    }
+}
+
+/**
  * Updates the alarm role id in the ServerConfig table for the guild specified in arguments
  *
  * @param {string} guildId - the ID of the guild
@@ -833,5 +852,6 @@ module.exports = {
     fetchWarnings,
     deleteWarning,
     updateVictory,
+    checkVictoryExistsOnDate,
     fetchVictories,
 };
