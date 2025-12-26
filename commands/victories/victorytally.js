@@ -5,8 +5,17 @@ const crudHandler = require("../../modules/database/crudHandler");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("victorytally")
-        .setDescription("Tally up some info about all victories"),
+        .setDescription("Tally up some info about all victories")
+        .addUserOption((option) =>
+            option
+                .setName("user")
+                .setDescription(
+                    "Optional - A user to tally their victories for"
+                )
+        ),
     async execute(interaction) {
+        const target = interaction.options.getUser("user");
+
         try {
             // Tally variables
             let totalRagequits = 0;
@@ -21,11 +30,12 @@ module.exports = {
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
             const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0];
 
-            // Fetch all victories
+            // Fetch all victories (or all victories where user is mentioned)
             const victories = await crudHandler.fetchVictories(
                 null,
                 "date",
-                "ASC"
+                "ASC",
+                target ? target.id : null
             );
 
             // Tally up everything
@@ -42,13 +52,21 @@ module.exports = {
                 }
             }
 
+            // Generate the title for embed based on if target is provided
+            let title;
+            if (target) {
+                title = `TOTAL GATS DESTROYED BY ${target.username.toUpperCase()}: \`${
+                    totalRagequits + totalStanddowns + totalTerminations
+                }\`!`;
+            } else {
+                title = `TOTAL GATS DESTROYED: \`${
+                    totalRagequits + totalStanddowns + totalTerminations
+                }\`!`;
+            }
+
             const tallyEmbed = new EmbedBuilder()
                 .setColor("#10b91f")
-                .setTitle(
-                    `TOTAL GATS DESTROYED: \`${
-                        totalRagequits + totalStanddowns + totalTerminations
-                    }\`!`
-                )
+                .setTitle(title)
                 .setThumbnail(process.env.VICTORY_ICON_URL)
                 .setDescription(
                     `Total gats within 7 days: \`${totalSevenDayVals}\``
