@@ -65,7 +65,7 @@ module.exports = {
         const dateInput = interaction.options.getString("date");
         const imageUrl = interaction.options.getString("image-url");
         const editMentions = interaction.options.getBoolean("editmentions");
-        mentions = null;
+        let mentions = null;
 
         try {
             await interaction.deferReply();
