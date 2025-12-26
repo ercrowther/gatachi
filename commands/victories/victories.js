@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const crudHandler = require("../../modules/database/crudHandler");
 const paginationHandler = require("../../modules/paginationHandler");
@@ -132,6 +133,7 @@ async function buildPages(victories) {
                     .setDescription(currentPageInfo)
                     .setColor("#10b91f")
                     .setTitle("Victories")
+                    .setThumbnail(process.env.VICTORY_ICON_URL)
                     .setFooter({
                         text: `Page ${pageCount} of ${Math.ceil(
                             victories.length / victoriesPerPage
