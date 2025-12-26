@@ -79,9 +79,20 @@ module.exports = {
                 null
             );
 
-            // Send a paginated embed
-            const victoryPages = await buildPages(victories);
-            await paginationHandler.paginate(interaction, victoryPages);
+            // Send an embed depending on if there is victories or not
+            if (victories.length > 0) {
+                // Send a paginated embed
+                const victoryPages = await buildPages(victories);
+                await paginationHandler.paginate(interaction, victoryPages);
+            } else {
+                const noVictoryEmbed = new EmbedBuilder()
+                    .setDescription("There is no recorded victories...")
+                    .setColor("#10b91f");
+
+                await interaction.reply({
+                    embeds: [noVictoryEmbed],
+                });
+            }
 
             return;
         } catch (error) {
