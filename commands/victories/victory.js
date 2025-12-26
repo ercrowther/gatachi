@@ -1,7 +1,6 @@
 require("dotenv").config();
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const crudHandler = require("../../modules/database/crudHandler");
-const generalUtils = require("../../modules/generalUtils");
 const VictoryMentionsModel = require("../../modules/database/models/victoryMentions");
 
 module.exports = {
@@ -40,7 +39,6 @@ module.exports = {
             const standdowns = victory.standdowns;
             const terminations = victory.terminations;
             const date = victory.date;
-            const dateObj = new Date(date);
             const imageUrl = victory.imageUrl;
 
             // Fetch mentions for the victory
@@ -61,9 +59,7 @@ module.exports = {
                     }\``
                 )
                 .setDescription(
-                    `This victory happened on \`${date}, ${generalUtils.timeAgo(
-                        dateObj
-                    )}\`. There were...\n\`${ragequits}\` ragequits\n\`${standdowns}\` standdowns\nand \`${terminations}\` terminations! ${
+                    `This victory happened on \`${date}\`. There were...\n\`${ragequits}\` ragequits\n\`${standdowns}\` standdowns\nand \`${terminations}\` terminations! ${
                         mentionsList
                             ? `\n\nThe people who helped were: ${mentionsList}`
                             : ""
