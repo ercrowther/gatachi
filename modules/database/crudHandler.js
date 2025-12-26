@@ -745,6 +745,59 @@ async function fetchAllFlaggedUsers() {
 }
 
 /**
+ * Fetch a FlaggedUser using the name of a ROBLOX account
+ *
+ * @param {string} name - The username of the person
+ * @returns {Promise<Object|null>} An object representing a FlaggedUser, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchFlaggedUserByName(name) {
+    try {
+        // Fetch the FlaggedUser by a roblox username
+        const user = await FlaggedUserModel.findOne({
+            where: {
+                name: name,
+            },
+        });
+
+        return user;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error(
+            "Failed to fetch flagged user by name: " + error.message
+        );
+    }
+}
+
+/**
+ * Delete a flagged user by name
+ *
+ * @param {string} name - The username of the flagged user to delete
+ * @returns {Promise<number>} An integer of how many rows were removed
+ * @throws {Error} Throws an error if deletion fails or nothing is deleted
+ */
+async function deleteFlaggedUserByName(name) {
+    try {
+        // Delete the flagged user
+        const deletedRows = await FlaggedUserModel.destroy({
+            where: { name: name },
+        });
+
+        // Throw an error if no deletions found, meaning an invalid name was passed
+        if (deletedRows == 0) {
+            throw new Error(
+                `No flagged user found with name ${name}. No deletion`
+            );
+        }
+
+        return deletedRows;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to delete flagged user: " + error.message);
+    }
+}
+
+/**
  * Fetch warnings for a guild by any order, direction, and optionally for a specific user
  *
  * @param {number} guildId - The guild id to get the warnings from
@@ -846,6 +899,8 @@ module.exports = {
     fetchFlaggedUser,
     createFlaggedUser,
     fetchAllFlaggedUsers,
+    fetchFlaggedUserByName,
+    deleteFlaggedUserByName,
     createWarning,
     createVictory,
     deleteVictory,
