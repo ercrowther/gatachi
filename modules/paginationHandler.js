@@ -14,13 +14,15 @@ async function paginate(interaction, pages) {
     let index = 0;
 
     // Buttons for switching pages
+    const prevId = `prev_${interaction.id}`;
+    const nextId = `next_${interaction.id}`;
     const prevButton = new ButtonBuilder()
-        .setCustomId("prev")
+        .setCustomId(prevId)
         .setLabel("◀️")
         .setDisabled(true)
         .setStyle(ButtonStyle.Primary);
     const nextButton = new ButtonBuilder()
-        .setCustomId("next")
+        .setCustomId(nextId)
         .setLabel("▶️")
         .setDisabled(pages.length == 1)
         .setStyle(ButtonStyle.Primary);
@@ -28,6 +30,7 @@ async function paginate(interaction, pages) {
 
     // Send the current page using the current index within the array of embed pages
     // Use editReply if interaction was deferred, otherwise reply
+    let message;
     if (interaction.deferred || interaction.replied) {
         await interaction.editReply({
             embeds: [pages[index]],

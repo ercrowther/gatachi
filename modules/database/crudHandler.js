@@ -2,8 +2,8 @@ const { Op } = require("sequelize");
 const ServerConfigModel = require("../database/models/serverConfig");
 const FlaggedUserModel = require("../database/models/flaggedUser");
 const WarningModel = require("../database/models/warning");
-const VictoryModel = require("../database/models/victory");
-const VictoryMentionModel = require("../database/models/victoryMention");
+const VictoriesModel = require("./models/victories");
+const VictoryMentionsModel = require("./models/victoryMentions");
 
 /**
  * Create a new ServerConfig for a guild
@@ -86,6 +86,102 @@ async function createWarning(userId, guildId, reasoning, severity) {
 }
 
 /**
+ * Create a new Victory
+ *
+ * @param {number} ragequits - How many enemies rage quit
+ * @param {number} standdowns - How many enemies stood down
+ * @param {number} terminations - How many enemies were banned
+ * @param {string} imageUrl - An image url if one exists for the victory
+ * @param {string} date - The date of the victory. Format is 'yyyy-mm-dd'
+ * @param {string[]} mentions - An array of discord user ids as the victory mentions
+ * @returns {Promise<Object|null>} - A promise resolving to the instance created, otherwise null
+ * @throws {Error} - Throws an error if the creation fails
+ */
+async function createVictory(
+    ragequits,
+    standdowns,
+    terminations,
+    imageUrl,
+    date,
+    mentions
+) {
+    try {
+        // Find the highest victoryInternalId
+        const lastVictory = await VictoriesModel.findOne({
+            order: [["victoryInternalId", "DESC"]],
+        });
+
+        const nextId = lastVictory ? lastVictory.victoryInternalId + 1 : 1;
+
+        // Create the victory
+        const victory = await VictoriesModel.create({
+            victoryInternalId: nextId,
+            ragequits: ragequits || 0,
+            standdowns: standdowns || 0,
+            terminations: terminations || 0,
+            imageUrl: imageUrl,
+            date: date,
+        });
+
+        // Create the mentions for the victory
+        if (mentions && mentions.length > 0) {
+            for (const userId of mentions) {
+                await VictoryMentionsModel.create({
+                    victoryId: victory.id,
+                    userId: userId,
+                });
+            }
+        }
+
+        return victory;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to create a Victory: " + error.message);
+    }
+}
+
+/**
+ * Delete a victory
+ *
+ * @param {number} victoryInternalId - The internal id of a victory
+ * @returns {Promise<number>} An integer of how many rows were removed
+ * @throws {Error} Throws an error if deletion fails or nothing is deleted
+ */
+async function deleteVictory(victoryInternalId) {
+    // Delete the victory
+    const deletedRows = await VictoriesModel.destroy({
+        where: { victoryInternalId },
+    });
+
+    // Throw an error if no deletions found, meaning an invalid ID was passed
+    if (deletedRows == 0) {
+        throw new Error(
+            `No victory found with ID ${victoryInternalId}. No deletion`
+        );
+    }
+
+    // Get all victories that have a victory id greater then whats passed
+    const aboveVictories = await VictoriesModel.findAll({
+        where: {
+            victoryInternalId: {
+                [Op.gt]: victoryInternalId,
+            },
+        },
+    });
+
+    // Decrement all of the victoryInternalId's for the victories found by 1
+    if (aboveVictories.length > 0) {
+        for (const victory of aboveVictories) {
+            await victory.update({
+                victoryInternalId: victory.victoryInternalId - 1,
+            });
+        }
+    }
+
+    return deletedRows;
+}
+
+/**
  * Delete a warning for a user
  *
  * @param {string} guildId - The guild ID where the warning is
@@ -124,6 +220,105 @@ async function deleteWarning(guildId, userId, warningId) {
     }
 
     return deletedRows;
+}
+
+/**
+ * Update a victory. Leave any parameter null to leave it as current data
+ *
+ * @param {number} victoryId - The internal id of the victory to update
+ * @param {number|null} ragequits - How many enemies rage quit
+ * @param {number|null} standdowns - How many enemies stood down
+ * @param {number|null} terminations - How many enemies were banned
+ * @param {string|null} imageUrl - An image url if one exists for the victory
+ * @param {string|null} date - The date of the victory. Format is 'yyyy-mm-dd'
+ * @param {string[]|null} mentions - An array of discord user ids as the victory mentions
+ * @returns {Promise<Object>} - The updated victory instance
+ * @throws {Error} - Throws an error if the update fails/victory id is not valid
+ */
+async function updateVictory(
+    victoryId,
+    ragequits,
+    standdowns,
+    terminations,
+    imageUrl,
+    date,
+    mentions
+) {
+    try {
+        // Get the victory
+        const victory = await VictoriesModel.findOne({
+            where: { victoryInternalId: victoryId },
+        });
+
+        if (!victory) {
+            throw new Error(
+                `Victory with ID ${victoryId} not found. Update failed`
+            );
+        }
+
+        // Build a table of update data
+        const updateData = {};
+        if (ragequits !== null && ragequits !== undefined) {
+            updateData.ragequits = ragequits;
+        }
+        if (standdowns !== null && standdowns !== undefined) {
+            updateData.standdowns = standdowns;
+        }
+        if (terminations !== null && terminations !== undefined) {
+            updateData.terminations = terminations;
+        }
+        if (imageUrl !== null && imageUrl !== undefined) {
+            updateData.imageUrl = imageUrl;
+        }
+        if (date !== null && date !== undefined) {
+            updateData.date = date;
+        }
+
+        // Update the victory only if any parameters was passed
+        if (Object.keys(updateData).length > 0) {
+            await victory.update(updateData);
+        }
+
+        // Handle the updating of mentions if it was provided
+        if (mentions !== null && mentions !== undefined) {
+            // Wipe existing mentions (its a lot easier this way)
+            await VictoryMentionsModel.destroy({
+                where: { victoryId: victory.id },
+            });
+
+            // Add the new mentions
+            if (mentions.length > 0) {
+                const mentionAdditions = mentions.map((userId) => ({
+                    victoryId: victory.id,
+                    userId,
+                }));
+                await VictoryMentionsModel.bulkCreate(mentionAdditions);
+            }
+        }
+
+        return victory;
+    } catch (error) {
+        throw new Error("Failed to update victory: " + error.message);
+    }
+}
+
+/**
+ * Check if a victory exists on a specific date
+ *
+ * @param {string} date - The date to check in 'yyyy-mm-dd' format
+ * @returns {Promise<boolean>} - True if a victory exists on that date, false otherwise
+ * @throws {Error} - Throws an error if the check fails
+ */
+async function checkVictoryExistsOnDate(date) {
+    try {
+        const victory = await VictoriesModel.findOne({
+            where: { date: date },
+        });
+
+        return victory !== null;
+    } catch (error) {
+        throw new Error("Failed to check victory on date: " + error.message);
+    }
 }
 
 /**
@@ -550,6 +745,59 @@ async function fetchAllFlaggedUsers() {
 }
 
 /**
+ * Fetch a FlaggedUser using the name of a ROBLOX account
+ *
+ * @param {string} name - The username of the person
+ * @returns {Promise<Object|null>} An object representing a FlaggedUser, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchFlaggedUserByName(name) {
+    try {
+        // Fetch the FlaggedUser by a roblox username
+        const user = await FlaggedUserModel.findOne({
+            where: {
+                name: name,
+            },
+        });
+
+        return user;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error(
+            "Failed to fetch flagged user by name: " + error.message
+        );
+    }
+}
+
+/**
+ * Delete a flagged user by name
+ *
+ * @param {string} name - The username of the flagged user to delete
+ * @returns {Promise<number>} An integer of how many rows were removed
+ * @throws {Error} Throws an error if deletion fails or nothing is deleted
+ */
+async function deleteFlaggedUserByName(name) {
+    try {
+        // Delete the flagged user
+        const deletedRows = await FlaggedUserModel.destroy({
+            where: { name: name },
+        });
+
+        // Throw an error if no deletions found, meaning an invalid name was passed
+        if (deletedRows == 0) {
+            throw new Error(
+                `No flagged user found with name ${name}. No deletion`
+            );
+        }
+
+        return deletedRows;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to delete flagged user: " + error.message);
+    }
+}
+
+/**
  * Fetch warnings for a guild by any order, direction, and optionally for a specific user
  *
  * @param {number} guildId - The guild id to get the warnings from
@@ -585,6 +833,77 @@ async function fetchWarnings(
     }
 }
 
+/**
+ * Fetch victories by any order, direction, and optionally only victories where a user is mentioned
+ *
+ * @param {number|null} victoryId - The internal victory id
+ * @param {string} orderBy - Valid fields: ragequits, standdowns, terminations, date
+ * @param {string} direction - The direction to sort, either "DESC" or "ASC"
+ * @param {number|null} userId - An optional user id. When provided, gets all victories that they are mentioned in
+ * @returns {Promise<Object[]|null>} An array of Victory objects, otherwise null
+ * @throws {Error} Throws an error if the fetch fails
+ */
+async function fetchVictories(
+    victoryId,
+    orderBy = "date",
+    direction = "DESC",
+    userId = null
+) {
+    try {
+        // Conditionally build a 'where' clause
+        const whereClause = {};
+        if (victoryId !== null && victoryId !== undefined) {
+            whereClause.victoryInternalId = victoryId;
+        }
+
+        // Conditionally build an include options
+        const includes = [];
+        if (userId !== null && userId !== undefined) {
+            includes.push({
+                model: VictoryMentionsModel,
+                where: { userId: userId },
+                required: true,
+            });
+        }
+
+        // Fetch all victories
+        const victories = await VictoriesModel.findAll({
+            where: whereClause,
+            include: includes,
+            order: [[orderBy, direction]],
+        });
+
+        return victories;
+    } catch (error) {
+        // Throw an error again so the caller can handle it and send an appropriate message
+        throw new Error("Failed to fetch victories: " + error.message);
+    }
+}
+
+/**
+ * Fetch all victories that have an imageUrl
+ *
+ * @returns {Promise<Object[]|null>} - An array of Victory objects, otherwise null
+ * @throws {Error} - Throws an error if the fetch fails
+ */
+async function fetchVictoriesWithImages() {
+    try {
+        const victories = await VictoriesModel.findAll({
+            where: {
+                imageUrl: {
+                    [Op.ne]: null,
+                },
+            },
+        });
+
+        return victories;
+    } catch (error) {
+        throw new Error(
+            "Failed to fetch victories with images: " + error.message
+        );
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfig,
@@ -604,7 +923,15 @@ module.exports = {
     fetchFlaggedUser,
     createFlaggedUser,
     fetchAllFlaggedUsers,
+    fetchFlaggedUserByName,
+    deleteFlaggedUserByName,
     createWarning,
+    createVictory,
+    deleteVictory,
     fetchWarnings,
     deleteWarning,
+    updateVictory,
+    checkVictoryExistsOnDate,
+    fetchVictories,
+    fetchVictoriesWithImages,
 };

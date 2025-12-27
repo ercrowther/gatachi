@@ -4,6 +4,10 @@ const ServerConfigModel = require("../modules/database/models/serverConfig");
 const FlaggedUserModel = require("../modules/database/models/flaggedUser");
 const WarningModel = require("../modules/database/models/warning");
 const crudHandler = require("../modules/database/crudHandler");
+const Victories = require("../modules/database/models/victories");
+const VictoryMentions = require("../modules/database/models/victoryMentions");
+// eslint-disable-next-line no-unused-vars
+const modelsIndex = require("../modules/database/models/index");
 
 module.exports = {
     name: Events.ClientReady,
@@ -12,6 +16,8 @@ module.exports = {
         ServerConfigModel.sync();
         FlaggedUserModel.sync();
         WarningModel.sync();
+        Victories.sync();
+        VictoryMentions.sync();
 
         try {
             // Handle a case where the bot shutdown during an active sticky pin
