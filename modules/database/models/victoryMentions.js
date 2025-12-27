@@ -6,7 +6,7 @@ const sequelize = require("../db");
  * victoryId: A foreign key to a victory id (not a victory's victoryId, but their primary key)
  * userId: The discord user id of the user being mentioned in a victory
  */
-const VictoryMention = sequelize.define("victorymention", {
+const VictoryMentions = sequelize.define("victorymentions", {
     id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -16,6 +16,10 @@ const VictoryMention = sequelize.define("victorymention", {
     victoryId: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+            model: "victories",
+            key: "id",
+        },
     },
     userId: {
         type: Sequelize.STRING,
@@ -23,4 +27,4 @@ const VictoryMention = sequelize.define("victorymention", {
     },
 });
 
-module.exports = VictoryMention;
+module.exports = VictoryMentions;
