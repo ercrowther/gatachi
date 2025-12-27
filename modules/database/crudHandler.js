@@ -880,6 +880,30 @@ async function fetchVictories(
     }
 }
 
+/**
+ * Fetch all victories that have an imageUrl
+ *
+ * @returns {Promise<Object[]|null>} - An array of Victory objects, otherwise null
+ * @throws {Error} - Throws an error if the fetch fails
+ */
+async function fetchVictoriesWithImages() {
+    try {
+        const victories = await VictoriesModel.findAll({
+            where: {
+                imageUrl: {
+                    [Op.ne]: null,
+                },
+            },
+        });
+
+        return victories;
+    } catch (error) {
+        throw new Error(
+            "Failed to fetch victories with images: " + error.message
+        );
+    }
+}
+
 module.exports = {
     updateAlarmRoleID,
     fetchServerConfig,
@@ -909,4 +933,5 @@ module.exports = {
     updateVictory,
     checkVictoryExistsOnDate,
     fetchVictories,
+    fetchVictoriesWithImages,
 };
