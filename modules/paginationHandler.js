@@ -14,15 +14,13 @@ async function paginate(interaction, pages) {
     let index = 0;
 
     // Buttons for switching pages
-    const prevId = `prev_${interaction.id}`;
-    const nextId = `next_${interaction.id}`;
     const prevButton = new ButtonBuilder()
-        .setCustomId(prevId)
+        .setCustomId("prev")
         .setLabel("◀️")
         .setDisabled(true)
         .setStyle(ButtonStyle.Primary);
     const nextButton = new ButtonBuilder()
-        .setCustomId(nextId)
+        .setCustomId("next")
         .setLabel("▶️")
         .setDisabled(pages.length == 1)
         .setStyle(ButtonStyle.Primary);
