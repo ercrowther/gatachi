@@ -52,14 +52,14 @@ module.exports = {
                 // Only process non-bot members
                 if (!member.user.bot) {
                     const nickname = member.nickname || member.user.username;
-                    const robloxId = await getRobloxIDFromNickname(nickname);
+                    const robloxId = await robloxHandler.getRobloxIDFromNickname(nickname);
 
                     // If the roblox username is valid for the discord member and they arent in thr group
                     if (robloxId && !groupUserIds.has(robloxId.toString())) {
                         accountGroupDiff.push({
                             robloxUsername:
-                                extractUsername(nickname) ||
-                                extractNick(nickname) ||
+                                robloxHandler.extractUsername(nickname) ||
+                                robloxHandler.extractNick(nickname) ||
                                 nickname,
                         });
                     }
@@ -140,60 +140,4 @@ function buildPages(users) {
     }
 
     return pages;
-}
-
-/**
- * Retrieve the ROBLOX username from a guild member's nickname
- *
- * @param {string} nickname - The discord nickname of a guild member
- * @returns {string|null} A string containing the ROBLOX username of the member, otherwise null
- */
-function extractUsername(nickname) {
-    const match = nickname.match(/\(([^)]+)\)$/);
-    return match ? match[1] : null;
-}
-
-/**
- * Retrieve the preferred name of a guild member's nickname. Useful to fall back on if
- * the ROBLOX username doesn't exist
- *
- * @param {string} nickname - The discord nickname of a guild membe
- * @returns {string|null} A string containing the preferred name of the member, otherwise null
- */
-function extractNick(nickname) {
-    const match = nickname.match(/^(.*?)\s*\(/);
-    return match ? match[1].trim() : null;
-}
-
-/**
- * Retrieve the ROBLOX id from a guild member's name
- *
- * @param {string} nickname - The member's nickname
- * @returns {Promise<string|null>} The Roblox ID if found, otherwise null
- */
-async function getRobloxIDFromNickname(nickname) {
-    let memberId = null;
-
-    // Attempt 1: Roblox username from the parentheses in the nickname
-    if (extractUsername(nickname)) {
-        memberId = await robloxHandler
-            .getIDByUsername(extractUsername(nickname))
-            .catch(() => null);
-    }
-
-    // Attempt 2: The preferred name of the guild member outside of parentheses
-    if (!memberId && extractNick(nickname)) {
-        memberId = await robloxHandler
-            .getIDByUsername(extractNick(nickname))
-            .catch(() => null);
-    }
-
-    // Attempt 3: Whole nickname of guild member
-    if (!memberId && nickname) {
-        memberId = await robloxHandler
-            .getIDByUsername(nickname)
-            .catch(() => null);
-    }
-
-    return memberId;
 }
