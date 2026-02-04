@@ -18,13 +18,13 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("scan")
         .setDescription(
-            "ADMIN ONLY. Scan a specified roblox account for red flags"
+            "ADMIN ONLY. Scan a specified roblox account for red flags",
         )
         .addStringOption((option) =>
             option
                 .setName("username")
                 .setDescription("A roblox username to scan")
-                .setRequired(true)
+                .setRequired(true),
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
@@ -56,7 +56,7 @@ module.exports = {
         if (messageExists) {
             const lockEmbed = new EmbedBuilder()
                 .setDescription(
-                    "**REQUEST DENIED** - A scan is already taking place!"
+                    "**REQUEST DENIED** - A scan is already taking place!",
                 )
                 .setColor("#fc0303");
             await interaction.reply({ embeds: [lockEmbed], ephemeral: true });
@@ -71,7 +71,7 @@ module.exports = {
             // Send a meaningful message
             const badUserEmbed = new EmbedBuilder()
                 .setDescription(
-                    "**CANNOT PRIME SCANNER** - The username does not exist!"
+                    "**CANNOT PRIME SCANNER** - The username does not exist!",
                 )
                 .setColor("#fc0303");
             await interaction.reply({
@@ -89,12 +89,16 @@ module.exports = {
                 .setColor("#10b91f")
                 .setThumbnail(process.env.SCAN_ICON_URL)
                 .setDescription(
-                    `Prepared to scan ${username}. Please select the scan's thoroughness below.`
+                    `Prepared to scan ${username}. Please select a scan mode below.`,
                 )
                 .addFields([
                     {
-                        name: "'Friends'",
-                        value: "Only the user's ROBLOX friendslist",
+                        name: "'Normal'",
+                        value: "Scan the user's ROBLOX friendslist and then show the flagged users they are friended with",
+                    },
+                    {
+                        name: "'Oracle'",
+                        value: "Scan all DW members and then show which members are friended with the user",
                     },
                 ])
                 .setFooter({
@@ -102,12 +106,17 @@ module.exports = {
                 });
 
             // Create buttons and add them to the embed
-            const friendButton = new ButtonBuilder()
-                .setCustomId("friends")
-                .setLabel("Friends")
+            const normalButton = new ButtonBuilder()
+                .setCustomId("normal")
+                .setLabel("Normal")
+                .setStyle(ButtonStyle.Primary);
+            const oracleButton = new ButtonBuilder()
+                .setCustomId("oracle")
+                .setLabel("Oracle")
                 .setStyle(ButtonStyle.Primary);
             const buttonRow = new ActionRowBuilder().addComponents(
-                friendButton
+                normalButton,
+                oracleButton,
             );
 
             const sentMessage = await interaction.reply({
@@ -136,7 +145,7 @@ module.exports = {
             const loadingEmbed = new EmbedBuilder()
                 .setColor("#10b91f")
                 .setDescription(
-                    "**Scanning in progress...** - Please wait. At a worse case, this can take up to 20 seconds"
+                    "**Scanning in progress...** - This may take some time. If it seems frozen, it isn't!",
                 )
                 .setFooter({
                     text: "Scanning helps, but remember: always use your own judgement",
@@ -146,62 +155,131 @@ module.exports = {
                 components: [],
             });
 
-            if (confirmation.customId == "friends") {
-                userFriends = await robloxHandler.returnUsersFriends(userId);
-            }
-
-            // Make a set of which friends are flagged
-            const foundUserFriends = new Set();
-            for (const friendId of userFriends) {
-                const foundFriend = await crudHandler.fetchFlaggedUser(
-                    friendId
-                );
-
-                if (foundFriend) {
-                    foundUserFriends.add(foundFriend);
-                }
-            }
-
             const headshotUrl = await robloxHandler.getHeadshot(userId);
-            const accountAge = await robloxHandler.getAccountAgeOfUser(userId);
 
-            // Calculate account violations
-            let totalViolations = foundUserFriends.size;
-            if (accountAge < 1) {
-                totalViolations += 1;
-            }
+            if (confirmation.customId == "normal") {
+                userFriends = await robloxHandler.returnUsersFriends(userId);
 
-            const infoEmbed = new EmbedBuilder()
-                .setColor("#10b91f")
-                .setTitle("**SCAN COMPLETE!**")
-                .setURL(`https://www.roblox.com/users/${userId}/profile`)
-                .setDescription(
-                    "Click the blue text above to go to the user's profile. The information below is a summary of the information gathered from the scan."
-                )
-                .setThumbnail(headshotUrl)
-                .addFields(
-                    {
-                        name: "Total Violations",
-                        value: totalViolations.toString(),
-                    },
-                    {
-                        name: "Flagged Friends",
-                        value: buildStringFromSetOfFlaggedUsers(
-                            foundUserFriends
-                        ),
-                    },
-                    {
-                        name: "Account Age",
-                        value: accountAge < 1 ? "Young" : "Acceptable",
+                // Make a set of which friends are flagged
+                const foundUserFriends = new Set();
+                for (const friendId of userFriends) {
+                    const foundFriend =
+                        await crudHandler.fetchFlaggedUser(friendId);
+
+                    if (foundFriend) {
+                        foundUserFriends.add(foundFriend);
                     }
-                )
-                .setFooter({
-                    text: "Scanning helps, but remember: always use your own judgement",
+                }
+
+                const accountAge =
+                    await robloxHandler.getAccountAgeOfUser(userId);
+
+                // Calculate account violations
+                let totalViolations = foundUserFriends.size;
+                if (accountAge < 1) {
+                    totalViolations += 1;
+                }
+
+                const infoEmbed = new EmbedBuilder()
+                    .setColor("#10b91f")
+                    .setTitle(`**NORMAL SCAN COMPLETE - ${username}**`)
+                    .setURL(`https://www.roblox.com/users/${userId}/profile`)
+                    .setDescription(
+                        "Click the blue text above to go to the user's profile. The information below is a summary of the information gathered from the scan.",
+                    )
+                    .setThumbnail(headshotUrl)
+                    .addFields(
+                        {
+                            name: "Total Violations",
+                            value: totalViolations.toString(),
+                        },
+                        {
+                            name: "Flagged Friends",
+                            value: buildStringFromSetOfFlaggedUsers(
+                                foundUserFriends,
+                            ),
+                        },
+                        {
+                            name: "Account Age",
+                            value: accountAge < 1 ? "Young" : "Acceptable",
+                        },
+                    )
+                    .setFooter({
+                        text: "Scanning helps, but remember: always use your own judgement",
+                    });
+                await confirmation.editReply({
+                    embeds: [infoEmbed],
+                    components: [],
                 });
-            await confirmation.editReply({
-                embeds: [infoEmbed],
-                components: [],
-            });
+            } else if (confirmation.customId == "oracle") {
+                // Get all guild members
+                const guildMembers =
+                    guild.members.cache.size > 0
+                        ? guild.members.cache
+                        : await guild.members.fetch();
+
+                // For every member, get their roblox ID if possible and add them to a list
+                const foundMembersRobloxIDs = new Map();
+                for (const member of guildMembers.values()) {
+                    if (!member.user.bot) {
+                        const nickname =
+                            member.nickname || member.user.username;
+                        const robloxId =
+                            await robloxHandler.getRobloxIDFromNickname(
+                                nickname,
+                            );
+
+                        if (robloxId) {
+                            foundMembersRobloxIDs.set(robloxId, nickname);
+                        }
+                    }
+                }
+
+                // Get the scanned user's friends list
+                const scannedUserFriends =
+                    await robloxHandler.returnUsersFriends(userId);
+
+                // Check which DW members are friends with the scanned user
+                const membersWhoareFriends = new Map();
+                for (const [
+                    memberId,
+                    memberNickname,
+                ] of foundMembersRobloxIDs) {
+                    if (scannedUserFriends.has(memberId)) {
+                        membersWhoareFriends.set(memberId, memberNickname);
+                    }
+                }
+
+                // Build the description string with the members who are friends
+                let descriptionString =
+                    "Click the blue text above to go to the user's profile. The following list of names below are the DW members who are friended to this user's ROBLOX profile:\n\n";
+
+                if (foundMembersRobloxIDs.size === 0) {
+                    descriptionString = "No DW members found!";
+                } else if (membersWhoareFriends.size > 0) {
+                    const membersList = Array.from(
+                        membersWhoareFriends.values(),
+                    ).join(", ");
+                    descriptionString += membersList;
+                } else {
+                    descriptionString += "None found";
+                }
+
+                // Reverse scan mode
+                const reverseEmbed = new EmbedBuilder()
+                    .setColor("#10b91f")
+                    .setTitle(`**ORACLE SCAN COMPLETE - ${username}**`)
+                    .setURL(`https://www.roblox.com/users/${userId}/profile`)
+                    .setThumbnail(headshotUrl)
+                    .setDescription(descriptionString)
+                    .setFooter({
+                        text: "Scanning helps, but remember: always use your own judgement",
+                    });
+                await confirmation.editReply({
+                    embeds: [reverseEmbed],
+                    components: [],
+                });
+            }
 
             scanMsg.delete(guildId);
         } catch (error) {
