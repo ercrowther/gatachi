@@ -254,7 +254,9 @@ module.exports = {
                 let descriptionString =
                     "Click the blue text above to go to the user's profile. The following list of names below are the DW members who are friended to this user's ROBLOX profile:\n\n";
 
-                if (membersWhoareFriends.size > 0) {
+                if (foundMembersRobloxIDs.size === 0) {
+                    descriptionString = "No DW members found!";
+                } else if (membersWhoareFriends.size > 0) {
                     const membersList = Array.from(
                         membersWhoareFriends.values(),
                     ).join(", ");
