@@ -89,12 +89,16 @@ module.exports = {
                     targetId
                 );
 
+                // Fetch the member to get their nickname
+                const member = await interaction.guild.members.fetch(targetId).catch(() => null);
+                const displayName = member?.nickname || target.username;
+
                 // Guard clause incase the user has no warnings on record
                 if (userWarns.length == 0) {
                     const emptyEmbed = new EmbedBuilder()
-                        .setDescription(`${target.username} has no warnings`)
+                        .setDescription(`${displayName} has no warnings`)
                         .setColor("#10b91f")
-                        .setTitle(`${target.username}'s Warnings`);
+                        .setTitle(`${displayName}'s Warnings`);
 
                     await interaction.reply({ embeds: [emptyEmbed] });
                     return;
@@ -103,7 +107,7 @@ module.exports = {
                 // Send a paginated embed
                 const userWarnPages = await buildPages(
                     userWarns,
-                    target,
+                    displayName,
                     interaction
                 );
                 await paginationHandler.paginate(interaction, userWarnPages);
@@ -164,6 +168,13 @@ async function buildPages(warnings, target, interaction) {
     let pageCount = 1;
     const pages = [];
 
+    // Calculate total warnings and severity
+    const totalWarnings = warnings.length;
+    const totalSeverity = warnings.reduce(
+        (sum, warn) => sum + warn.dataValues.severity,
+        0
+    );
+
     for (let i = 0; i < warnings.length; i++) {
         // Parse a few datas from the element
         const reason = warnings[i].dataValues.reasoning
@@ -176,7 +187,7 @@ async function buildPages(warnings, target, interaction) {
 
         // Optionally add the username the warning is for if no specific user is mentioned
         if (!target) {
-            let username = "Unknown user";
+            let displayName = "Unknown user";
 
             const user =
                 (await interaction.client.users
@@ -186,10 +197,12 @@ async function buildPages(warnings, target, interaction) {
                     .fetch(String(warnings[i].dataValues.userId))
                     .catch(() => null));
             if (user) {
-                username = user.username;
+                // Fetch the member to get their server nickname
+                const member = await interaction.guild.members.fetch(user.id).catch(() => null);
+                displayName = member?.nickname || user.username;
             }
 
-            currentPageInfo += ` | ${username}`;
+            currentPageInfo += ` | ${displayName}`;
         }
 
         // Final half of warning info
@@ -204,12 +217,12 @@ async function buildPages(warnings, target, interaction) {
                     .setDescription(currentPageInfo)
                     .setColor("#10b91f")
                     .setTitle(
-                        target ? `${target.username}'s Warnings` : "Warnings"
+                        target ? `${target}'s Warnings` : "Warnings"
                     )
                     .setFooter({
                         text: `Page ${pageCount} of ${Math.ceil(
                             warnings.length / warnsPerPage
-                        )}`,
+                        )} | Total Warnings: ${totalWarnings}, Total Severity: ${totalSeverity}`,
                     })
             );
             pageCount += 1;
