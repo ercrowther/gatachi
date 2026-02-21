@@ -39,9 +39,13 @@ module.exports = {
         const target = interaction.options.getUser("user").id;
         const reason = interaction.options.getString("reason");
         const severity = interaction.options.getInteger("severity") ?? 1;
-        const memberName = interaction.options.getUser("user").username;
+        const targetUser = interaction.options.getUser("user");
 
         try {
+            // Fetch the member to get their server nickname
+            const member = await interaction.guild.members.fetch(target).catch(() => null);
+            const memberName = member?.nickname || targetUser.username;
+
             await crudHandler.createWarning(target, guildId, reason, severity);
 
             // Get all warnings for the user

@@ -223,6 +223,51 @@ async function deleteWarning(guildId, userId, warningId) {
 }
 
 /**
+ * Clear all warnings for a specific user in a guild
+ *
+ * @param {string} guildId - The guild ID where the warnings are
+ * @param {string} userId - The user id to clear warnings for
+ * @returns {Promise<number>} An integer of how many rows were removed
+ * @throws {Error} Throws an error if deletion fails
+ */
+async function clearAllWarningsForUser(guildId, userId) {
+    try {
+        // Delete all warnings for this user in the guild
+        const deletedRows = await WarningModel.destroy({
+            where: { guildId, userId },
+        });
+
+        return deletedRows;
+    } catch (error) {
+        throw new Error(
+            "Failed to clear all warnings for user: " + error.message
+        );
+    }
+}
+
+/**
+ * Clear all warnings in a guild (Owner only)
+ *
+ * @param {string} guildId - The guild ID to clear all warnings from
+ * @returns {Promise<number>} An integer of how many rows were removed
+ * @throws {Error} Throws an error if deletion fails
+ */
+async function clearAllWarningsForGuild(guildId) {
+    try {
+        // Delete all warnings in the guild
+        const deletedRows = await WarningModel.destroy({
+            where: { guildId },
+        });
+
+        return deletedRows;
+    } catch (error) {
+        throw new Error(
+            "Failed to clear all warnings for guild: " + error.message
+        );
+    }
+}
+
+/**
  * Update a victory. Leave any parameter null to leave it as current data
  *
  * @param {number} victoryId - The internal id of the victory to update
@@ -930,6 +975,8 @@ module.exports = {
     deleteVictory,
     fetchWarnings,
     deleteWarning,
+    clearAllWarningsForUser,
+    clearAllWarningsForGuild,
     updateVictory,
     checkVictoryExistsOnDate,
     fetchVictories,
