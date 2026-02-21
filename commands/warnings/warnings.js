@@ -56,6 +56,8 @@ module.exports = {
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
+        await interaction.deferReply();
+
         // Map choice value's to the columns in warnings
         const sortMap = {
             sort_date: "date",
@@ -100,7 +102,7 @@ module.exports = {
                         .setColor("#10b91f")
                         .setTitle(`${displayName}'s Warnings`);
 
-                    await interaction.reply({ embeds: [emptyEmbed] });
+                    await interaction.editReply({ embeds: [emptyEmbed] });
                     return;
                 }
 
@@ -129,7 +131,7 @@ module.exports = {
                     .setColor("#10b91f")
                     .setTitle("Warnings");
 
-                await interaction.reply({ embeds: [emptyEmbed] });
+                await interaction.editReply({ embeds: [emptyEmbed] });
                 return;
             }
 
@@ -145,7 +147,7 @@ module.exports = {
             const errorEmbed = new EmbedBuilder()
                 .setDescription(`**ERROR** - ${error}`)
                 .setColor("#fc0303");
-            await interaction.reply({
+            await interaction.editReply({
                 embeds: [errorEmbed],
             });
 
