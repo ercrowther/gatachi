@@ -283,6 +283,8 @@ module.exports = {
 
             scanMsg.delete(guildId);
         } catch (error) {
+            scanMsg.delete(guildId);
+
             // Send a meaningful message
             const errorEmbed = new EmbedBuilder()
                 .setDescription(`**FATAL ERROR** - ${error}`)
