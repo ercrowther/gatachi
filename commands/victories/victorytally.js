@@ -52,6 +52,34 @@ module.exports = {
                 }
             }
 
+            // Calculate streak of consecutive days with victories (only when no target user)
+            let streakDays = 0;
+            if (!target) {
+                const currentDate = new Date();
+                let searching = true;
+
+                while (searching) {
+                    const dateStr =
+                        currentDate.getFullYear() +
+                        "-" +
+                        String(currentDate.getMonth() + 1).padStart(2, "0") +
+                        "-" +
+                        String(currentDate.getDate()).padStart(2, "0");
+
+                    // Check if there's a victory on this date
+                    const victoryOnDate = victories.find(
+                        (v) => v.dataValues.date === dateStr
+                    );
+
+                    if (victoryOnDate) {
+                        streakDays++;
+                        currentDate.setDate(currentDate.getDate() - 1);
+                    } else {
+                        searching = false;
+                    }
+                }
+            }
+
             // Generate the title for embed based on if target is provided
             let title;
             if (target) {
@@ -83,8 +111,17 @@ module.exports = {
                         value: `\`${totalTerminations}\``,
                         inline: true,
                     }
-                )
-                .setTimestamp();
+                );
+
+            // Add streak field if no target user
+            if (!target) {
+                tallyEmbed.addFields({
+                    name: "Current Streak: ",
+                    value: `\`${streakDays} days\``,
+                });
+            }
+
+            tallyEmbed.setTimestamp();
             // Set the footer based on if there's been a gathunt today
             const today = new Date();
             const todayStr =
