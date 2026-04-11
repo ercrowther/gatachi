@@ -118,7 +118,6 @@ async function sendEmbedPin(channel, guildId) {
     const sentMessage = await channel.send({
         embeds: [message],
         components: [row],
-        withResponse: true,
     });
 
     // Make a 'conclude' button and keep it alive
@@ -195,7 +194,7 @@ async function createCollector(sentMessage) {
             });
 
             // Updated embed to show alarm conclusion
-            const concludedEmbed = EmbedBuilder.from(sentMessage)
+            const concludedEmbed = EmbedBuilder.from(sentMessage.embeds[0])
                 .setColor("#7b7b7b")
                 .setThumbnail(process.env.ALARM_CONCLUDED_ICON_URL)
                 .setTitle(`ALARM CONCLUDED! (${alarmTime})`)
